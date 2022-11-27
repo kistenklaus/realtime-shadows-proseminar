@@ -1,0 +1,120 @@
+%% content.tex
+%%
+
+
+\chapter{Warum sind Schatten eigentlich so wichtig?}
+\chapter{Geschichte}
+\chapter{Shadow Mapping}
+\chapter{Visuelle Artefakte}
+\section{Schatten Akne}
+\section{Perspektivisches Aliasing}
+\section{Projektives Aliasing}
+\chapter{Schatten bias}
+\section{Peter Panning}
+\section{Slope Scale Bias}
+\section{Normal Offset Bias}
+\section{Second-depth Shadow Mapping}
+\section{Fazit}
+\chapter{Perspektivisches Shadow Mapping}
+\section{LiPSM}
+\section{Cascaded Shadow Mapping}
+\chapter{Punkt Lichtquellen}
+
+
+%% ==============================
+
+\chapter{Einleitung}
+\label{ch:Introduction}
+Eine Einleitung beginnt üblicherweise mit einer Motivation für das Thema und gegebenenfalls einer thematischen Einordnung.
+Im Anschluss folgt eine kurze Zusammenfassung der gesamten schriftlichen Arbeit.
+Abschließend folgt häufig ein Absatz, in dem die Kapitelgliederung der Arbeit erläutert wird, z.B:
+
+In der folgenden Arbeit werden zunächst die nötigen Grundlagen für die verschiedenen Techniken aufgezählt (Kapitel \ref{ch:Content1}).
+Anschließend werden \dots
+
+
+
+\vfill
+Hier noch ein Tipp für das Arbeiten mit git/Versionskontrollsoftware und Latex:
+Wenn jeder Satz im \texttt{.tex}-Dokument in einer eigenen Zeile steht, sind die commits etwas aufgeräumter und Merging funktioniert besser.
+
+
+%% ==============
+\chapter{Ein Kapitel}
+\label{ch:Content1}
+
+
+\section{Erster Abschnitt}
+Eine Referenz sieht so aus \cite{becker2008a}.
+Alles, was aus anderen Quellen übernommen wurde, muss auf diese Weise zitiert werden.
+Alle nicht-trivialen Aussagen sollten mit einer Quelle belegt werden, sofern sie nicht eigens hergeleitet werden.
+
+%
+Und so referenzieren wir ein Bild (Abbildung \ref{fig:beispielbild}).
+Jede Abbildung sollte einen Zweck im Text erfüllen.
+Konkret heißt das: Jede Abbildung sollte an irgendeiner Stelle im Text referenziert werden.
+
+\begin{figure}
+	\begin{center}
+		\includegraphics[width=.3\textwidth]{logos/KITLogo_RGB.pdf}
+		\caption{Ein Beispielbild. Abbildungsunterschriften sollten die Abbildung knapp erklären und enden immer mit einem Punkt.
+			Bilder können aus anderen Quellen übernommen werden.
+			Auch das muss gekennzeichnet werden, z.B. so: Abbildung aus \cite{becker2008a}.}
+	\end{center}
+	\label{fig:beispielbild}
+\end{figure}
+
+
+\section{Zweiter Abschnitt}
+Dies ist ein langer Text, der dafür sorgt, dass alsbald ein Zeilenumbruch erfolgt: $x$"~Koordinatensystem.
+Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.
+At vero eos et accusam et justo duo dolores et ea rebum.
+Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.
+At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+
+\dots
+
+
+%% content.tex
+%%
+
+%% ==============
+\chapter{Ein Kapitel}
+\label{ch:Content2}
+%% ==============
+
+\dots
+
+
+%% ===========================
+\section{Erster Abschnitt}
+\label{ch:Content2:sec:Section1}
+%% ===========================
+
+Mathematische Gleichungen wie $x = y + 1$ können im Text mit \$ \dots \$ genutzt werden.
+Längere oder wichtigere Gleichungen wie Gleichung \ref{eq:mittelwert} können als separate Objekte gesetzt werden und referenziert werden.
+Dabei sind auch diese Gleichungen als Teil des Textes anzusehen und mit den nötigen Satzzeichen auszustatten.
+Das arithmetische Mittel ist definiert als
+\begin{equation}
+\frac{1}{n} \sum_{i=1}^{n} x_i \; ,
+\label{eq:mittelwert}
+\end{equation}
+wobei $n$ die Anzahl der Elemente ist.
+Gleichungen, die nicht im Text referenziert werden, benötigen keine Nummerierung.
+Das lässt sich mit der Environment \texttt{equation*} umsetzen.
+Das geometrische Mittel ist
+\begin{equation*}
+	\sqrt[n]{\sum_{i=1}^{n} x_i} \; .
+\end{equation*}
+
+
+
+
+
+%% ===========================
+\section{Zweiter Abschnitt}
+\label{ch:Content2:sec:Section2}
+%% ===========================
+
+\dots

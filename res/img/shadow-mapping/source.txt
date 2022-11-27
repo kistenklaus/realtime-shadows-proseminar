@@ -1,0 +1,4 @@
+url : http://www.downloads.redway3d.com/downloads/public/documentation/bk_re_shadow_mapping_detailed.html
+article: shadow map detailed / REDWAY3D Documentation
+contributors: ???
+note: shows shadow map and result.

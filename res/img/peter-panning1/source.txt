@@ -1,0 +1,5 @@
+url : https://learn.microsoft.com/en-us/windows/win32/dxtecharts/common-techniques-to-improve-shadow-depth-maps
+article : Common Techniques to Improve Shadow Depth Maps
+contributors : stevewhims, vegard, DCtheGeek, mijacobs, msatranjr
+desc : peter-panning artifact (seems like floating)
+
