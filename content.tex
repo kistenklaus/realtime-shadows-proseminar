@@ -21,28 +21,28 @@ Schatten geben nicht nur besser aussehende Bilder, sondern geben auch wichtige I
 %Um den Schatten in einer Szene berechnen zu können muss zuhnächst für jeden Pixel bekannt sein, ob er im Schatten liegt.
 %Dieses Problem scheint einfach. 
 Ein Pixel liegt genau dann im Licht, wenn die Gerade zwischen Pixel 
-und Lichtquelle von keinem anderen Objekte blockiert wird, sonst liegt der Punkt im Schatten. 
+und Lichtquelle von keinem anderen Objekte blockiert wird.
 In einem Raytracing Renderer ist dies leicht umzusetzen. 
-Um zu bestimmen, ob ein Punkt im Schatten liegt kann ein weiterer Ray von dem Punkt zu dem Licht berechnet werden, 
+Um zu bestimmen, ob ein Punkt im Schatten liegt kann ein weiterer Ray von dem Oberflächenpunkt zu dem Licht berechnet werden, 
 falls dieser ein Objekt schneidet so liegt der Punkt im Schatten.
 Raytracing ist jedoch ein sehr aufwendiges Verfahren, deshalb wird in Echtzeitberechnungen von Bildern meistens
 ein Rasterisierter Renderer verwendet.
-In einem Rasterisierten Renderer ist es jedoch nicht möglich eine Ray zu berechnen um zu bestimmen, ob
-ein Punkt im Schatten liegt.
+In einem Rasterisierten Renderer ist es jedoch nicht möglich den Schnitt eines Rays mit der Szene
+zu berechnen um zu bestimmen, ob ein Punkt im Schatten liegt.
 \newline 
 \newline
 Der bekannteste Algorithmus der Schatten in einer Rasterisierten Renderpipeline 
 berechnet heißt Shadow Mapping.
 In einem Raytracing Renderer wird für jeden Punkt berechnet, ob das Licht sichtbar ist.
 Bei Shadow Mapping wird dies umformuliert. 
-Ein Punkt liegt im Schatten, gdw. der Punkt vom Licht sichtbar ist.
+Ein Punkt liegt im Schatten, genau dann wenn der Punkt vom Licht sichtbar ist.
 Dieses Verfahren kommt jedoch mit einigen Problemen, denn um zu berechnen, ob ein Punkt von dem Licht sichtbar ist,
 wird die Szene aus der Perspektive des Lichtes auf eine Textur gezeichnet.
 Dabei wird sich für jeden Pixel der Textur gespeichert wie, weit der nächstliegende Punkt von dem Licht entfernt ist.
 Da es bei dem abspeichern zu einer Diskretisierung kommt rechnen 
 wir in den Folgeschritten niemals mit der tatsächlichen Tiefe eines Punktes,
 sondern mit einer Rundung zu dem nächstliegenden Diskretisierungswert.
-Außerdem ist es durch die endliche Auflösung der Textur nicht möglich die Tiefenwerte eines exakten Punktes zu bekommen,
+Außerdem ist es durch die endliche Auflösung der Textur nicht möglich die Tiefenwerte eines exakten Punktes zu speichern,
 sondern nur die Tiefenwerte eines Bereichs, der von einem Pixel auf der Textur beschrieben wird.
 \newline
 \newline
@@ -52,10 +52,10 @@ Dabei werde ich zunächst auf die Wert Diskretisierung in der Tiefen Textur eing
 Dies führt zu einem Artefakt, dass Selbstverschattung genannt wird, um dieses Artefakt zu verhindern gibt es 
 viele Möglichkeiten ich will mich jedoch mit Heuristischen Biasing Methoden und Second Depth Shadow Mapping beschäftigen.
 Anschließend werde ich auf Projektives und Perspektivisches Aliasing eingehen, diese Artefakte entstehen durch 
-die limitierte Textur Auflösung.
+die limitierte Textur Auflösung der Shadow Map.
 Um diese Artefakte zu beheben, gibt es eine überzahl an Verfahren, ich werde mich jedoch auf PSM, LiSPSM, CSM und PCF beschränken 
 diese Verfahren bieten eine gute Grundlage für das Verständnis weiterer komplexerer Verfahren.
-Am Ende will ich in einem Fazit eine Echtzeitfährige Kombination der vorgestellten Verfahren vorstellen.
+Am Ende will ich in einem Fazit eine Echtzeitfähige Kombination der vorgestellten Verfahren vorstellen.
 
 
 % thematische einordnung (was auch immer has heißen soll)
@@ -67,7 +67,7 @@ Am Ende will ich in einem Fazit eine Echtzeitfährige Kombination der vorgestell
 % hier wäre ein paar zitate schön die das ganze gut auf den punkt bringen.
 Bei dem Rasterisierten Rendern zeichnen wir Objekte die aus Oberflächen (Dreiecken) bestehen.
 Oberflächen bestehen aus Punkten die, die Position der Oberfläche relativ zu dem Objekt Mittelpunkt beschreiben.
-Diese Koordinaten, die relativ zu dem Objekt geben sind, sind in einem Koordinatensystem, dass \textbf{Object Space} heißt.
+Diese Koordinaten, die relativ zu dem Objekt geben sind, sind in einem Koordinatensystem, das \textbf{Object Space} heißt.
 Um ein Objekt in der Welt verschieben zu können müssen alle Punkte eines Objekts (in Object Space) mit einer Linearen Transformation
 in \textbf{World Space} transformiert werden.
 Die Transformation besteht aus Skalierung, Translation und Rotation und wird meistens als 4x4 Matrix mit homogenen Koordinaten dargestellt.
@@ -83,38 +83,47 @@ Um die Punkte auf dem Bildschirm darzustellen müssen wir eine Transformation de
 $\mathbb{R}^3 \rightarrow [0,1080]\times[0,1920]$ (Unter der Annahme, das der Bildschirm FullHD ist).
 Diese Transformation wird von der Renderpipeline implizit durchgeführt, dabei werden alle Punkte in Clip Space 
 auf die XY-Ebene projiziert und die Z-Werte werden als Tiefen Wert verwendet. 
-Die Transformation transformiert somit Punkte von Clip Space Screen Space.
-
-\section{Framebuffer}
-Bei dem Zeichnen der Szene werden die Farb und Tiefenwerte der Pixel in einem Framebuffer gespeichert.
-Dadurch das die Werte diskret gespeichert werden, enthält der Framebuffer nach dem rendern nicht die tatsächlichen Farb und 
-Tiefenwerte, sondern eine Rundung auf den nächst gelegenen Werte.
-Für die Farbwerte ist dieses Verhalten kein Problem, da der Unterschied zwischen 2 Farbwerten, die nebeneinander liegen, nicht erkennbar ist.
-Dieses Verhalten führt jedoch bei Tiefenwerten dazu, dass in der Tiefenwert des Framebuffers niemals die tatsächliche Tiefe, 
-sondern nur eine Annäherung ist, dies führt zu Problemen wenn damit gerechnet wird.
+Die Transformation transformiert somit Punkte von Clip Space in \textbf{Screen Space}.
 
 \section{Projektion}
 In Abschnitt \ref{section:coords} wurde bereits auf die einzelnen Koordinatensysteme und Transformationen eingegangen,
-für eine dieser Transformationen ist jedoch eine genaueres Verständis nötig.
+für die Kamera Projektion ist jedoch eine genaueres Verständis nötig.
 Eine Kamera Projektion ist eine Abbildung von View Space in Clip Space.
 Im Allgemeinen lassen sich alle Kamera Projektionen mit einem Frustum (Kegelstumpf) eindeutig charakterisieren.
 Ein Kamera Frustum beschreibt einen Raum im View Space, 
 der durch die Projektion auf einen Würfel im Clip Space abgebildet wird.
 Eine Oberfläche des Frustums, die Near Plane, ist die Oberfläche auf die projiziert wird.
 Die entgegengesetzte Oberfläche heißt Far Plane. 
-Die Far Plane beschreibt die Punkte, die am weit möglichsten von der Kamera entfernt sind.
+Die Far Plane beschreibt die Punkte, die am weit möglichsten von der Kamera entfernt sind und noch sichtbar sind.
 Insbesondere wird ein Gerade von einem Punkt auf der Near Plane zu einem entsprechenden Punkt auf der Far Plane
 durch die Projektion auf eine Gerade projiziert die orthogonal zu der XY-Ebene liegt.
 Dadurch wird klar, dass die Projektionstransformation, die Art der Projektion der Kamera definiert.
+\newline
+\newline
+Projektionstransformationen werden oft mit einer $\mathbb{R}^{4\times{}4}$ Matrix implementiert.
+Für eine orthogonale Projektion ist dies nicht nötig, da hier von $\mathbb{R}^3$ nach $\mathbb{R}^3$ abgebildet wird,
+doch bei perspektivischen Projektionen wird die w-Komponente verwendet um die perspektive zu implementieren.
+Dabei werden nach der Matrix Multiplikation die xyz-Komponenten durch die w-Komponente des Ergebnisvektors geteilt.
+Dabei ist zu bemerkten, dass die z-Koordinate ebenfalls durch die w-Komponente geteilt wird. 
+Dies ist im allgemeinen sinnvoll, den es führt zu einer nicht linearen Verteilung der Tiefe, wodurch die Tiefenauflösung
+nahe bei der Kamera höher ist.
 
-
-
+\section{Framebuffer}
+Bei dem Zeichnen der Szene werden die Farb und Tiefenwerte der Pixel in einem Framebuffer gespeichert.
+Dadurch das die Werte diskret gespeichert werden, enthält der Framebuffer nach dem rendern nicht die tatsächlichen Farb und 
+Tiefenwerte, sondern eine Rundung auf den nächst gelegenen Werte.
+Für die Farbwerte ist dieses Verhalten kein Problem, da der Unterschied zwischen 2 Farbwerten, die nebeneinander liegen, nicht erkennbar ist.
+Dieses Verhalten führt jedoch bei Tiefenwerten dazu, dass die Tiefenwerte des Framebuffers niemals die tatsächliche Tiefe beschreiben.
+Dieses Problem ist im Allgemeinen durch die nicht lineare Verteilung der Tiefenwerte, zwischen Near und Far Plane, kein Problem, 
+doch im weiteren werden wir sehen, dass dies zu Problemen führt, wenn die Szene aus einer anderen Perspektive gezeichnet wird 
+und die Ergebnisse in einem weiteren Zeichenschritt verwendet werden.
 
 \chapter{Shadow Mapping} %that title blows.
 \label{section:shadow-mapping}
 Shadow Mapping \cite{Williams1978} ist ein Algorithmus zu Berechnung von Schatten 
 in einer Rasterisierten Renderpipeline. 
-Es ist weiterhin das Verfahren, das in der Echtzeitberechnung am meisten zum Einsatz kommt.
+Es ist das Verfahren, das in der Echtzeitberechnung am meisten zum Einsatz kommt, 
+da es in einem Rasterisiertem Renderer implementierbar ist.
 \newline \newline
 Wie bereits in der Abschnitt \ref{ch:Introduction} erwähnt ist zur Berechnung von Schatten nötig, festzustellen,
 ob ein anderes Objekt das Licht an einem Punkt blockiert.
@@ -123,8 +132,7 @@ Renderer nicht möglich.
 Beim Shadow Mapping Verfahren formulieren wir unsere Frage um und betrachten 
 die Äquivalente Frage:
 \textbf{Ist der Punkt von der Perspektive des Lichtes Sichtbar?}
-Wenn ja dann wird das Licht von keinem Objekte blockiert,
-falls nein, so liegt der Pixel im Schatten.
+Wenn ja dann wird das Licht von keinem Objekte blockiert.
 Dieses umformulieren der Fragestellung hat den Vorteil das sie sich in
 einem Rasterisierten Renderer berechnen lässt, indem die Szene aus der Perspektive des Lichtes gezeichnet wird.
 \newline
@@ -132,20 +140,22 @@ einem Rasterisierten Renderer berechnen lässt, indem die Szene aus der Perspekt
 \textbf{Der Shadow Mapping Algorithmus lässt sich in 2 Schritte 
 unterteilen:}
 \begin{enumerate}
-  \item Im ersten Schritt wird die Szene aus der Perspektive 
-    des Lichtes gezeichnet. 
-    Dabei wird für jeden Pixel die Distanz der am nächsten liegenden Oberfläche gespeichert.
-    Die Textur die die Tiefenwerte dieses Schrittes enthält heißt Shadow Map (\ref{fig:shadow-map}).
-  \item Im zweiten Schritt wird die Szene normal gezeichnet.
-    Dabei wird für jeden Pixel in der Shadow Map nachgeschaut, ob ein Objekt
-    das Licht blockiert.
-    Dafür wird die Position des Fragmentes zuerst in das gleiche Koordinatensystem wie in
-    Schritt 1 transformiert.
-    Um anschließend den Abstand der Oberfläche zu finden die auf der Gerade zwischen Pixel und Licht 
-    am nächsten beim Licht ist. 
-    Dieser Abstand kann nun mit der z-Koordinate des transformierten Punktes verglichen werden.
-    Falls die z-Koordinate kleiner gleich dem Shadow Map Wert ist so liegt der Punkt im Licht andernfalls
-    exisiert ein Objekt, das das Licht blockiert und der Pixel liegt im Schatten.
+  \item Im ersten Schritt wird ein Koordinatensystem (\textbf{Light View Space}) konstruiert, 
+    dass die Szene relativ zu dem Licht beschreibt.
+    Anschließend wird auf dieses Koordinatensystem eine Projektionstransformtion angewendet.
+    Das neue Koordinatensystem heißt \textbf{Light Clip Space}.
+    Die Szene wird nun mit dem Light Clip Space Koordinatensystem gezeichnet.
+    Dabei muss nur der Tiefenwert für jeden Pixel gespeichert werden.
+    Die Textur mit den Tiefenwerten heißt \textbf{Shadow Map}.
+  \item Im zweiten Schritt wird die Szene auf der Perspektive der Kamera gezeichnet.
+    Gleichzeitig zu der Transformation der Punkte von Object Space zu Clip Space
+    werden die Punkte ebenfalls in Light Clip Space transformiert.
+    Nun kann der Abstand des Punktes zu dem Licht 
+    aus der z-Komponente des Punktes im Light Clip Space Koordinatensystems abgelesen werden.
+    Mit der x und y Komponente kann bestimmt werden, auf welchen Pixel in der Shadow Map der Punkt in Schritt 1 abgebildet wurde.
+    Anschließend kann durch einen Vergleich bestimmt werden, ob der Punkt im Schatten liegt.
+    Wenn der Tiefenwert des Pixels in Shadow Map kleiner ist als die z-Komponente des Punktes im Light Clip Space Koordinatensystem,
+    so ist der Punkt von der Perspektive des Lichtes nicht sichtbar und liegt somit im Schatten.
 \end{enumerate}
 \begin{figure}
 	\begin{center}
@@ -177,22 +187,37 @@ Dabei tritt Diskretisierung in mehreren Dimensionen auf.
 Die erste Form der Diskretisierung die zu Fehlern führt ist die Werte-Diskretisierung 
 in der Shadow Map. 
 Bei dem Vergleich, ob ein Pixel im Schatten liegt oder von einer Lichtquelle beleuchtet wird,
-kommt es zu falscher Klassifikation. Dieser Fehler entsteht durch runden der Tiefenwerte in der Shadow Map und
+kommt es zur falschen Klassifikation. Dieser Fehler entsteht durch runden der Tiefenwerte in der Shadow Map und
 durch die numerische Instabilität der Lichttransformation.
 Dies führt zu einem deutlich sichtbaren visuellen Artefakt, das Selbestverschattung genannt wird.
-Selbestverschattung wird in \ref{section:self-shadow} genauer erklärt.
+Selbestverschattung wird in Abschnitt \ref{section:self-shadow} genauer erklärt.
 \newline \newline
-Die zweite Dimension, in der Diskretisierungsfehler auftreten, ist die limitierte Anzahl 
-an Pixel in der Shadow Map.
-Dies ist besonders ein Problem bei Objekten die Schatten auf eine Oberflächen werfen, die nahe bei der Kamera ist.
-Den diese Oberflächen werden größer auf dem Bildschirm dargestellt, doch die Auflösung der Shadow Map ist 
-überall gleich, worduch die einzelnen Pixel der Shadow Map sehr klar im Schatten erkennbar sind.
-Diese Form der Diskretisierung nennt man Perspektivisches Aliasing (mehr zu Perspektivischen Aliasing in \ref{section:perspective-aliasing}). 
-Ein weiteres Problem das durch die limitierte Auflösung der Shadow Map auftritt heißt,
-Projektives Aliasing. 
-Es steht dadurch das kein 1:1 Verhältnis zwischen Pixeln in der Shadow Map und 
-Pixeln aus der Perspektive der Kamera exisiert dieser Effekt ist besonders
-sichtbar, wenn die Blickrichtung der Kamera und die Lichtrichtung orthogonal zueinander sind.
+Die zweite Dimension, in der Diskretisierungsfehler auftreten, ist die Pixel Auflösung der Shadow Map.
+Diskretisierungsfehler die dadurch auftreten erzeugen Aliasing Artefakte.
+Eine Möglichkeit diese zu verbessern funktioniert analog zu Geometrie Antialiasing, dabei kann jedoch
+nicht die Shadow Map selbst gefiltert werden, sondern es werden die Vergleichsergebnisse gefiltert.
+Dies führt dazu das die Schattenkanten geglättet werden. 
+Eine mögliche Implementierung hiervon heißt Percentage Closer Filtering
+und wird in Abschnitt \ref{section:pcf} behandelt.
+\newline
+\newline
+Um andere Methoden zur Verbesserung des Aliasing Problems zu betrachten ist eine genauere Klassifikation des Aliasing Problems 
+nötig. 
+Dabei wird Aliasing in 2 Kategorien eingeteilt:
+\begin{itemize}
+  \item \textbf{Perspektive Aliasing} entsteht dadurch, dass Oberflächen die nahe bei der Kamera sind groß auf dem 
+    Bildschirm dargestellt werden, jedoch wird für die Schattenberechnung dieselbe Anzahl an Shadow Map Pixeln verwendet,
+    wie für Oberflächen, die sehr weit von der Kamera entfernt sind. 
+    Der Effekt von Perspektive Aliasing ist maximal, wenn das Licht direkt in die Kamera leuchtet, denn hier 
+    sind Oberfläche nahe bei der Kamera im Clip Space groß aber im Light Clip Space klein, 
+    wodurch Oberflächen nahe bei der Kamera wenig Pixel auf der Shadow Map zugeordnet sind. 
+    Dieses Szenario nennt man Duelling Frusta. 
+    Analog ist der Effekt minimal, wenn die Lichtrichtung gleich der Sichtrichtung ist.
+  \item \textbf{Projektives Aliasing} entsteht, wenn zwischen Pixeln in der Shadow Map und Pixeln 
+    im Screen Space kein 1:1 Verhältnis existiert. Dieser Effekt ist besonders stark bei Oberflächen
+    mit Normalen orthogonal zu der Lichtrichtung. Diese Oberflächen nehmen auf der Shadow Map nur sehr wenig 
+    Pixel ein, wobei sie im Screen Space sehr groß sein können. 
+\end{itemize}
 
 \section{Selbestverschattung}
 \label{section:self-shadow}
