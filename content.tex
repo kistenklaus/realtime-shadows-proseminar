@@ -222,46 +222,69 @@ Dabei wird Aliasing in 2 Kategorien eingeteilt:
 \section{Selbestverschattung}
 \label{section:self-shadow}
 %erläuterung des Artefakts (mit Bild)
-Selbestverschattung (Abbildung: \ref{fig:self-shadowing}) ist ein visuelles Artefakt.
-Es entsteht, dadurch das die Tiefenwerte in der Shadow Map nur mit einer bestimmten Genauigkeit dargestellt werden können.
-Durch diese Einschränkung eines Computers kommt es gezwungenermaßen zu Rundungsfehlern.
-Da die Rundungsfehler die bei der Transformation eines Punktes in das Licht Koordinatensystem und die Diskretisierung
-die beim Abspeichern in der Shadow Map nicht gleich sind, kommt es bei dem Vergleich der Tiefenwerte zu Fehlern.
-Durch diese Rundungsfehler kann es dazu kommen, dass die Tiefe eines Punktes in der Shadow Map geringer ist 
-als die z-Koordinate des selben transformierten Punktes im Lichtkoordinatensystems.
-Dies führt dazu, das Oberflächen sich selbst beschattet.
-In der Praxis führt dies dazu, dass Punkte die eigentlich im Licht liegen, 
-teilweise so gezeichnet werden als würden sie im Schatten liegen.
-Dadurch das die Tiefenwerte automatisch gerundet werden kommt es zu Pattern, wobei für die Streifen
-die im Licht liegen der Tiefenwert in der Shadow Map aufgerundet wurde und für 
-die Streifen die im Schatten liegen abgerundet.
-\newline \newline
-Eine Lösung diese Rundungsfehler zu umgehen ist das Verwenden eines bias Werts.
-Der Bias-Wert ist eine kleine konstante Zahl, die vor dem Vergleich von 
-dem Tiefenwert in der Shadow Map abgezogen wird. 
-Dadurch kommt es an Oberflächen die orthogonal zu der Lichtrichtung liegen 
-zu keiner Selbestverschattung mehr.
-Doch für Oberflächen die fast parallel zu der Lichtrichtung liegen, muss ein sehr großer bias gewählt werden
-um Selbestverschattung zu verhindern.
-Doch je größer der bias ist desto mehr wird der gesamte Schatten verschoben.
-Diesen Effekt nennt man Peter-Panning (Abbildung: \ref{fig:peter-panning}).
-
-\begin{figure}
+\begin{figure}[H]
 	\begin{center}
     \includegraphics[width=1\textwidth]{res/img/shadow-acne1/image.jpg}
-    \caption{}
+    \caption{Links\hspace{6}: Szene mit Selbstverschattung. 
+         \newline Rechts: Szene ohne Selbstverschattung.
+         \newline } 
 	\end{center}
-	\label{fig:self-shadowing}
+	\label{fig:shadow-acne-artefact}
 \end{figure}
-%einfache erläuterung von constant depth-bias.
-%erläuterung von Peter panning (mit Bild)
-\begin{figure}
+Selbstverschattung (Abbildung: \ref{fig:shadow-acne-artefact}) ist ein visuelles Artefakt.
+Es tritt auf, wenn ein Punkt in der Shadow Map näher ist als tatsächlich, wodurch der Punkt sich selbst beschattet.
+Dies kann an folgen Gründen liegen.
+\begin{enumerate}
+  \item Die Rundung der Tiefenwerte kann zu Selbestverschattung führen, dabei kann entweder der Tiefenwert in der Shadow Map
+    abgerundet oder die Z-Komponente des Punktes in Light Clip Space aufgerundet worden sein.
+  \item In der Shadow Map kann nicht die tatsächliche Tiefe eines Punktes
+    gespeichert werden, sondern nur die Tiefe eines Bereichs, der von einem Pixel in der Shadow Map beschrieben wird.
+    Für Oberflächen die parallel zur Lichtrichtung liegen und klein auf der Shadow Map dargestellt werden ist dieses Problem
+    verstärkt.
+\end{enumerate}
+
+
+\begin{figure}[H]
+	\begin{center}
+    \includegraphics[width=1\textwidth]{res/img/shadow-acne3/image.png}
+    \caption{Die Box ist ein beleuchtetes Objekt. 
+      Die zackige gelbe Linie beschreibt die Tiefenwerte die tatsächlich in der Shadow Map gespeichert sind.
+      Hier sind 2 Diskretisierungen zu bemerken; 
+      die Breite der Shadow Map Pixel und der Höhenunterschied der Pixel (Tiefenauflösung).
+      Der schwarze Teil der Box Oberfläche liegt im Licht, 
+      da hier der Tiefenwert in der Shadow Map größer ist als der Abstand der Oberfläche zu dem Licht.
+      analog liegt der gelbe Teil der Box Oberfläche im Schatten.
+    }
+	\end{center}
+	\label{fig:shadow-acne-illu}
+\end{figure}
+
+Selbstverschattung kann durch einen Bias-Wert verringert werden.
+Dabei wird vor dem Vergleich ein kleiner Wert (der Bias), auf den Tiefenwert in der Shadow Map addiert.
+Bildlich kann man sich vorstellen, dass die gelbe gezackte Linie
+(aus Abbildung: \ref{fig:shadow-acne-illu}) in die Lichtrichtung verschoben wird.
+Es tritt keine Selbstverschattung mehr auf, wenn die komplette gelbe Linie unterhalb der Oberfläche liegt.
+\newline \newline
+Ein Konstanter Bias kann dabei helfen die Rundungsfehler (Grund: 1) zu verhindern.
+Jedoch tritt weiterhin Selbstverschattung an Oberflächen auf die fast parallel zur Lichtrichtung liegen.
+An diesen Oberflächen kann Selbstverschattung nur durch einen sehr großen Bias-Wert verhindert werden.
+Dies führt jedoch zu einem Artefakt, dass Peter Panning heißt (Abbildung: \ref{fig:peter-panning}).
+Dadurch das wir die Tiefenwerte der Shadow Map in Richtung des Lichtes mit einem Bias-Wert verschieben,
+verschieben wir auch die Schatten selbst.
+Dises Artefakt ist sehr unangenehm, den wie in Abschnitt \ref{ch:Introduction} erläutert, geben uns Schatten Informaitonen
+über Skalierung und Position, wenn wir also Schatten verschieben dann führt das zu einer irreführenden Darstellung der Szene.
+
+\begin{figure}[H]
 	\begin{center}
     \includegraphics[width=1\textwidth]{res/img/peter-panning1/image.jpg}
-    \caption{}
+    \caption{Links\hspace{6}: Szene mit Peter Panning Artefakt. Es führt oft dazu das es so scheint, als würden Objekte schweben.
+        \newline Rechts: Szene ohne Peter Panning Artefakt.}
 	\end{center}
 	\label{fig:peter-panning}
 \end{figure}
+
+%einfache erläuterung von constant depth-bias.
+%erläuterung von Peter panning (mit Bild)
 
 \subsection{Heuristisches Biasing}
 \label{section:heuristic-biasing}
@@ -296,22 +319,21 @@ Slope-Scale-Bias + Normal-Offset-Shadow-Mapping + Konstanter Bias.
 \label{section:sdsm}
 Eine Alternative zu einem bias Wert heißt Second Depth Shadow Mapping.
 Dieses funktioniert jedoch nur für Scenen mit solider Geometrie.
-Dabei wird in der Shadow Map anstatt der Geometrie die am nähsten zum 
-Licht ist, die Geometrie abzuspeichern die am zweit nähsten zum Licht liegt.
+Dabei wird in der Shadow Map anstatt der Geometrie die am nähesten zum 
+Licht ist, die Geometrie abgespeichert die am zweit nähesten zum Licht ist.
 Dies lässt sich effektiv implementieren, indem anstatt von Back Face Culling, Front Face Culling verwendet wird.
 Dadurch kommt es zu keiner Selbestverschattung mehr, da die Oberfläche die am nähsten an der 
-Lichtquelle liegt immer im Licht ist, denn beim Vergleich der Tiefenwerte 
-keine zwei Werte verglichen werden die nah beianander liegen.
+Lichtquelle liegt immer im Licht ist, denn beim Vergleich der Tiefenwerte werden
+keine zwei Werte verglichen, die nah beieinander liegen.
 Es könnte jedoch Selbestverschattung auf der Rückseite der Geometrie auftreten.
 Da die Geometrie solide ist, kann für Oberflächen die von dem Licht wegzeigen direkt 
 angenommen werden das sie im Schatten liegen.
 Außerdem tritt kein Peter-Panning auf, da kein bias verwendet wird.
 Doch wie bereits erwähnt erfordert Second Depth Shadow Mapping, das die
 Geometrie der Szene solide ist.
-Doch auch mit solider Geometrie kann Selbestverschattung auftreten,
-wenn die Geometrie sehr dünn ist.
-Denn dann ist der Tiefenunterschied zwischen Front und Back Face zu gering ist, wodurch
-beim Vergleich wieder Rundungsfehler auftreten, was direkt zu Selbestverschattung führt.
+Doch auch mit solider Geometrie kann Selbestverschattung auftreten.
+Wenn die Geometrie sehr dünn ist dann, dann ist der Tiefenunterschied zwischen Front und Back Face zu gering, 
+wodurch beim Vergleich wieder Selbstverschattung auftritt.
 \section{Bestimmen eines engen Licht Frustums}
 \label{section:fit-the-frustum}
 Alle Probleme die im letzten Kapitel besprochen wurden, sowie fast alle
