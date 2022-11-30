@@ -12,22 +12,6 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 
-%% -------------------------------
-%% |  Information for PDF file   |
-%% -------------------------------
-\hypersetup{
- pdfauthor={Karl Sassie},
- pdftitle={Proseminar_KarlSassie_2362789},
- pdfsubject={Schattenverfahren auf der GPU},
- pdfkeywords={Proseminar},
- colorlinks,
- linkcolor=blue,
- filecolor=red,
- urlcolor=blue,
- citecolor=blue
-}
-
-\urlstyle{same}
 
 %% ---------------------------------
 %% | Information about the thesis  |
@@ -46,6 +30,31 @@
 \newcommand{\timestart}{28. Oktober 2022 20XX}
 \newcommand{\timeend}{XX. Monat 20XX}
 \newcommand{\submissiontime}{DD. MM. 20XX}
+
+%% -------------------------------
+%% |  Information for PDF file   |
+%% -------------------------------
+\hypersetup{
+ pdfauthor={\myname},
+ pdftitle={Proseminar_KarlSassie_2362789},
+ pdfsubject={Schattenverfahren auf der GPU},
+ pdfkeywords={Proseminar},
+ colorlinks,
+ linkcolor=blue,
+ filecolor=red,
+ urlcolor=blue,
+ citecolor=blue
+}
+
+% \pdfstringdefDisableCommands{%
+%   \def\\{}%
+%   \def\texttt#1{<#1>}%
+% }
+
+\urlstyle{same}
+
+\hbadness=99999  % or any number >=10000
+
 
 %% ---------------------------------
 %% | ToDo Marker - only for draft! |
