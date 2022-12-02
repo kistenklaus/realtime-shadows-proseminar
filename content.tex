@@ -413,10 +413,10 @@ Hier wird sichergestellt, dass alle Punkte die im Kamera Frustum enthalten sind,
 Licht Frustum enthalten sind. Dies ist unnötig, den nicht alle Punkte im Kamera Frustum müssen auch Schatten werfen.
 Ein minimaleres Frustum kann bestimmt werden, indem zuerst eine Bounding Box um alle Objekte berechnet wird,
 um anschließend das Frustum so zu wählen, 
-dass der Schnitt zwischen Objekt Bounding Boxes und dem Kamera Frustums vollständig im
+dass der Schnitt zwischen Objekt Bounding Boxes und dem Kamera Frustum vollständig im
 Licht Frustum enthalten ist.
 \par
-Bei Lichtern mit einer Perspektivischer Projektion, kann nur die Near und Far Plane angepasst werden, da sich sonst die Form der Projektion
+Bei Lichtern mit einer Perspektivischen Projektion, kann nur die Near und Far Plane angepasst werden, da sich sonst die Form der Projektion
 ändert. 
 Dadurch kommt nur zu einer Verbesserung der Tiefenauflösung.
 Für Lichter mit Orthogonaler Projektion kann ebenfalls, die effektive Pixel Auflösung der Shadow Map verbessert werden.
