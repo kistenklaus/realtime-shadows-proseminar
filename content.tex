@@ -94,16 +94,20 @@ Eine Oberfläche des Frustums, die Near Plane, ist die Oberfläche auf die proji
 Die entgegengesetzte Oberfläche heißt Far Plane. 
 Die Far Plane beschreibt die Punkte, die am weit möglichsten von der Kamera entfernt sind und noch sichtbar sind.
 Insbesondere wird eine Gerade von einem Punkt auf der Near Plane zu einem entsprechenden Punkt auf der Far Plane
-durch die Projektion auf eine Gerade projiziert die orthogonal zu der XY-Ebene liegt.
+durch die Projektion auf eine Gerade projiziert, die orthogonal zu der XY-Ebene liegt.
 Dadurch wird klar, dass die Projektionstransformation, die Art der Projektion der Kamera definiert.
 \par
 Projektionstransformationen werden oft mit einer 4x4 Matrix implementiert.
 Für eine orthogonale Projektion ist dies nicht nötig, da hier von $\mathbb{R}^3$ nach $\mathbb{R}^3$ abgebildet wird,
-doch bei perspektivischen Projektionen wird die w-Komponente verwendet um die perspektive zu implementieren.
-Dabei werden nach der Matrix Multiplikation die xyz-Komponenten durch die w-Komponente des Ergebnisvektors geteilt.
-Dabei ist zu bemerkten, dass die z-Koordinate ebenfalls durch die w-Komponente geteilt wird. 
+doch bei perspektivischen Projektionen wird die w-Komponente verwendet, um die Perspektive zu implementieren.
+Dabei werden nach der Matrix Multiplikation die XYZ-Komponenten durch die W-Komponente des Ergebnisvektors geteilt.
+Dabei ist zu bemerkten, dass die Z-Koordinate ebenfalls durch die w-Komponente geteilt wird. 
 Dies ist im allgemeinen sinnvoll, den es führt zu einer nicht linearen Verteilung der Tiefe, wodurch die Tiefenauflösung
 nahe bei der Kamera höher ist.
+\par
+Es ist zu bemerken, das dadurch das ebenfalls durch die Z-Komponente geteilt wird die Verteilung der Tiefenwerte direkt mit der 
+Art der Projektion zusammenhängt. Beispielsweise haben Orthogonale Projektionen oft eine lineare Verteilung der Tiefenwerte,
+wobei perspektivische Projektionen oft eine nicht lineare Tiefenwert Verteilung mit sich bringen.
 
 \section{Framebuffer}
 Bei dem Zeichnen der Szene werden die Farb und Tiefenwerte der Pixel in einem Framebuffer gespeichert.
@@ -479,18 +483,22 @@ Ebenfalls wird in \cite{LiPSM2004} erwähnt, dass eine Logarithmische Parameteri
 jedoch lässt sich dies nicht leicht in Hardware implementieren.
 \section{Cascaded Shadow Mapping}
 \label{section:csm}
-TODO find original PAPER that introduced CSM.\\
-Cascaded Shadow Mapping (CSM) ist ein weiteres Verfahren um Perspektives Aliasing zu vermeiden.
+Cascaded Shadow Mapping(CSM) \cite{Engel2007}\cite{Zhang2006} ist ein weiteres Verfahren um Perspektives Aliasing zu vermeiden.
 Im Vergleich zu LiSPSM wird der Raum bei CSM nicht verzerrt, sondern in $N$ Räume partitioniert (Abbildung X.Y).
 \par
 Der Algorithmus lässt sich in folge Schritte unterteilen:
 \begin{enumerate}
   \item Partitioniere das View Frustum in N Räume. 
     Teile dafür das View Frustum an N Oberflächen die orthogonal zu der Near und Far Plane liegen.
-    Eine Möglichkeit diese Flächen zu verteilen ist exponentiel : $z_{i} = N * (far / near)^{i/N}$
+    Die Schnittebenen werden dabei exponentiel gewählt, dies folgt aus den Herleitungen die in LiSPSM geführt wurden: 
+    $z_{i} = N * (far / near)^{i/N}$
   \item Berechne eine enge Projektion [\ref{section:fit-the-frustum}] um jede Partition des View Frustums.
     Zeichne anschließend die Szene mit den $N$ berechneten Projektionen.
     Die $N$ erzeugeten Shadow Maps heißen Kaskaden.
+    Jede Kaskade hat dieselbe Auflösung, beschreibt jedoch einen unterschiedlich großen Bereich.
+    Kaskaden, die weiter von der Kamera entfernt sind, sind größer und die Schatten die durch diese Kaskaden erzeugt werden haben somit eine 
+    geringere Qualität.
+
   \item Zeichne die Szene aus der Kamera Perspektive. 
     Die Schatten berechnung muss dabei leicht angepasst werden.
     Bei dem Vergleich, im Shadow Mapping Algorithmus, muss jetzt der Tiefenwert mit allen Kaskaden verglichen werden.
@@ -499,9 +507,9 @@ Es ist zu bemerken, dass CSM eine Diskretisierung von LiSPSM, denn falls $N\righ
 Durch die Diskretisierung kommt es dazu das der Übergang zwischen Kaskaden oft sichtbar ist.
 Es ist Möglich LiSPSM zu verwenden um die einzelnen Kaskaden zu zeichnen, doch dies führt dazu das die Schattenberechnung wieder
 in Post Perspektive Space durchgeführt wird. 
-Eine andere Möglichkeit ohne die Form des Lichtfrustums zu verändern ist eine andere Verteilung der Kaskaden\\
-$z_{i} = \lambda{}N(far/near)^{i/N} + (1-\lambda{})(n+(i/near)(far - near)$\\
-Dabei ist $\lambda$ ein Faktor, der die Stärke der Korrektion vorgibt.
+Eine andere Möglichkeit ohne die Form des Lichtfrustums zu verändern basiert darauf die Kaskaden zu überlappen,
+dadurch Schattenqualität verloren doch dadurch das der Übergang zwischen den Kaskaden nicht mehr sichtbar ist 
+führt es dann doch zu einer steigerung der Schattenqualität.
 \par
 Der Große Vorteil von CSM ist, dass die berechnung der Schatten nicht in Post Perspective Space wie bei PSM oder LiSPSM 
 durchgeführt wird. 

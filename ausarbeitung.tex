@@ -120,20 +120,28 @@ content
 \blankpage
 
 \chapter*{Abstract}
-Die Computer Grafik hat in den letzten Jahren sich sehr weit weiter entwickelt und was 
-vor 50 Jahren noch undenkbar war, kann heute in Echtzeit berechnet werden.
-Dahinter verbirgt sich einerseits die Weiterentwicklung der Hardware, doch auch im Software 
-Bereich sind große Forschungssprünge zu vermerken.
+% Die Computer Grafik hat in den letzten Jahren sich sehr weit weiter entwickelt und was 
+% vor 50 Jahren noch undenkbar war, kann heute in Echtzeit berechnet werden.
+% Dahinter verbirgt sich einerseits die Weiterentwicklung der Hardware, doch auch im Software 
+% Bereich sind große Forschungssprünge zu vermerken.
 Ein wichtiger Teil der Computer Grafik ist die Darstellung von Schatten.
-Deshalb will ich mich in dieser Ausarbeitung mit Algorithmen auseinandersetzen,
-die nicht nur eine gute Qualität haben, sondern auch in Echtzeit berechnet werden können.
+Deshalb will ich mich mit Algorithmen auseinandersetzen,
+die in Echtzeit umsetzbar sind und dabei eine gute Qualität haben.
+%die nicht nur eine gute Qualität haben, sondern auch in Echtzeit berechnet werden können.
 Dabei werde ich mich auf eine Technik fokussieren, die 1978 von Williams vorgestellt wurde, die \glqq{}Shadow Mapping\grqq{} heißt.
 Diese ist in der einfachsten Form leicht zu verstehen, doch es gibt viele 
 Erweiterungen des Verfahrens die, die visuelle Qualität 
-der Schatten verbessern. Die Erweiterungen des \glqq{}Shadow Mapping\grqq{} Verfahrens 
-beheben meist ein visuelles Artefakt.
-Die Artefakte vollständig zu verstehen macht es leichter die einzelnen Erweiterungen zu nachzuvollziehen.
-Deshalb will ich diese erläutern und anschließend Anpassungen des Shadow Mapping Verfahrens vorstellen.
+der Schatten verbessern. 
+Dazu gehören Algorithmen die Schattenkanten Aliasing verhindern (zB. PCF) oder 
+Algorithmen die, die relative Auflösung eines Punktes auf der Shadow Maps verändern dazu gehört, 
+PSM, LiSPSM, und CSM. Es gibt sehr viel mehr solcher Algorithmen, ich will mich jedoch auf dieses kleine Sub-Set beschränken.
+
+%
+% Die Erweiterungen des \glqq{}Shadow Mapping\grqq{} Verfahrens 
+% beheben meist ein visuelles Artefakt.
+% Die Artefakte vollständig zu verstehen macht es leichter die einzelnen Erweiterungen zu nachzuvollziehen.
+%
+% Deshalb will ich diese erläutern und anschließend Anpassungen des Shadow Mapping Verfahrens vorstellen.
 
 
 %% -------------------

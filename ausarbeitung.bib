@@ -102,23 +102,30 @@ pages = {283–291},
 numpages = {9},
 series = {SIGGRAPH '87}
 }
-
-@article{10.1145/37402.37435,
-author = {Reeves, William T. and Salesin, David H. and Cook, Robert L.},
-title = {Rendering Antialiased Shadows with Depth Maps},
-year = {1987},
-issue_date = {July 1987},
+@book{Engel2007,
+  title={ShaderX5: Advanced Rendering Techniques},
+  author={Engel, W.F.},
+  isbn={9781584504993},
+  lccn={2006034609},
+  series={Shaderx series},
+  url={https://books.google.de/books?id=isu\_QgAACAAJ},
+  year={2007},
+  publisher={Charles River Media}
+}
+@inproceedings{Zhang2006,
+author = {Zhang, Fan and Sun, Hanqiu and Xu, Leilei and Lun, Lee Kit},
+title = {Parallel-Split Shadow Maps for Large-Scale Virtual Environments},
+year = {2006},
+isbn = {1595933247},
 publisher = {Association for Computing Machinery},
 address = {New York, NY, USA},
-volume = {21},
-number = {4},
-issn = {0097-8930},
-url = {https://doi.org/10.1145/37402.37435},
-doi = {10.1145/37402.37435},
-abstract = {We present a solution to the aliasing problem for shadow algorithms that use depth maps. The solution is based on a new filtering technique called percentage closer filtering. In addition to antialiasing, the improved algorithm provides soft shadow boundaries that resemble penumbrae. We describe the new algorithm in detail, demonstrate the effects of its parameters, and analyze its performance.},
-journal = {SIGGRAPH Comput. Graph.},
-month = {aug},
-pages = {283–291},
-numpages = {9}
+url = {https://doi.org/10.1145/1128923.1128975},
+doi = {10.1145/1128923.1128975},
+abstract = {Shadowing effects dramatically enhance the realism of virtual environments by providing useful visual cues. Shadow mapping is an efficient algorithm for real-time shadow rendering, which is extensively adopted in real-time applications by its generality and efficiency. However, shadow mapping usually suffers from the inherent aliasing errors due to the image-based nature. In this paper, we present the Parallel-Split Shadow Maps (PSSMs) scheme, which splits the view frustum into different parts by using the planes parallel to the view plane and then generates multiple smaller shadow maps for the split parts. A fast and robust split strategy based on the analysis of shadow map aliasing has been proposed, which produces a moderate aliasing distribution over the whole depth range. By applying the geometry approximation procedure to each of the split parts instead of the whole scene, the tighter bounding shapes of visible objects enhance the utilization of the shadow map resolution. Hardware-acceleration is used to remove the extra rendering passes when synthesizing the scene-shadows. Our approach is intuitive to implement without using complex data structures, with real-time performance for dynamic and large-scale virtual environments.},
+booktitle = {Proceedings of the 2006 ACM International Conference on Virtual Reality Continuum and Its Applications},
+pages = {311–318},
+numpages = {8},
+keywords = {image-based rendering, shadow mapping, large-scale virtual environments},
+location = {Hong Kong, China},
+series = {VRCIA '06}
 }
-
