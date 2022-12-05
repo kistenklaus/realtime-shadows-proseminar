@@ -49,7 +49,7 @@ Deshalb werde ich mit im weiteren mit dem Algorithmus auseinander setzen und dab
 Dabei werde ich zunächst auf die Wert Diskretisierung in der Tiefen Textur eingehen.
 Dies führt zu einem Artefakt, dass Selbstverschattung genannt wird. 
 Um dieses Artefakt zu verhindern gibt es viele Möglichkeiten, ich will mich jedoch mit Heuristischen Biasing Methoden und Second Depth Shadow Mapping beschäftigen.
-Anschließend werde ich auf Projektives und Perspektivisches Aliasing eingehen, diese Artefakte entstehen durch 
+Anschließend werde ich auf Projektives und perspektivisches Aliasing eingehen, diese Artefakte entstehen durch 
 die limitierte Textur Auflösung der Shadow Map.
 Um diese Artefakte zu beheben, gibt es eine überzahl an Verfahren, ich werde mich jedoch auf PSM, LiSPSM, CSM und PCF beschränken 
 diese Verfahren bieten eine gute Grundlage für das Verständnis weiterer komplexerer Verfahren.
@@ -111,6 +111,7 @@ wobei perspektivische Projektionen oft eine nicht lineare Tiefenwert Verteilung 
 
 \section{Framebuffer}
 Bei dem Zeichnen der Szene werden die Farb und Tiefenwerte der Pixel in einem Framebuffer gespeichert.
+Tiefenwerte können dabei unterschiedlich kodiert werden. Oft werden unsigned 32-bit Integer verwendet.
 Dadurch das die Werte diskret gespeichert werden, enthält der Framebuffer nach dem rendern nicht die tatsächlichen Farb und 
 Tiefenwerte, sondern eine Rundung auf den nächst gelegenen Werte.
 Für die Farbwerte ist dieses Verhalten kein Problem, da der Unterschied zwischen 2 Farbwerten, die nebeneinander liegen, nicht erkennbar ist.
@@ -252,8 +253,8 @@ Dies kann an folgen Gründen liegen.
 \begin{enumerate}
   \item Die Rundung der Tiefenwerte kann zu Selbestverschattung führen, dabei kann entweder der Tiefenwert in der Shadow Map
     abgerundet oder die Z-Komponente des Punktes in Light Clip Space aufgerundet worden sein.
-  \item In der Shadow Map kann nicht die tatsächliche Tiefe eines Punktes
-    gespeichert werden, sondern nur die Tiefe eines Bereichs, der von einem Pixel in der Shadow Map beschrieben wird.
+  \item In der Shadow Map kann nicht die Tiefe eines Bereichs
+    gespeichert werden, sondern nur die Tiefe eines Punktes.
     Für Oberflächen die parallel zur Lichtrichtung liegen und klein auf der Shadow Map dargestellt werden ist dieses Problem
     verstärkt.
 \end{enumerate}
@@ -420,18 +421,18 @@ um anschließend das Frustum so zu wählen,
 dass der Schnitt zwischen Objekt Bounding Boxes und dem Kamera Frustum vollständig im
 Licht Frustum enthalten ist.
 \par
-Bei Lichtern mit einer Perspektivischen Projektion, kann nur die Near und Far Plane angepasst werden, da sich sonst die Form der Projektion
+Bei Lichtern mit einer perspektivischen Projektion, kann nur die Near und Far Plane angepasst werden, da sich sonst die Form der Projektion
 ändert. 
 Dadurch kommt nur zu einer Verbesserung der Tiefenauflösung.
 Für Lichter mit Orthogonaler Projektion kann ebenfalls, die effektive Pixel Auflösung der Shadow Map verbessert werden.
-Für solche Lichter kann das Kamera Frustum, wie bei Lichtern mit Perspektivischer Projektion, in Light View Space 
+Für solche Lichter kann das Kamera Frustum, wie bei Lichtern mit perspektivischer Projektion, in Light View Space 
 transformiert werden, um anschließend eine Bounding Box um das Kamera Frustum zu bestimmen. 
 Für große Direktionale Lichter, wie die Sonne ist dies besonders wichtig, da sonst die gesamte Szene in der Shadow Map enthalten wäre,
 wodurch die Auflösung der Shadow Map extrem gering wäre.
 
 \section{Perspective Shadow Mapping}
 \label{section:psm}
-Eine Möglichkeit um Perspektivisches Aliasing zu verhindern ist das verzerren 
+Eine Möglichkeit um perspektivisches Aliasing zu verhindern ist das verzerren 
 der Shadow Map. 
 Dabei wird das Light Clip Space Koordinatensystem so verzerrt, dass Oberflächen die nahe an der Kamera liegen in dem
 Lichtkoordinatensystem größer sind und dadurch eine höhere Auflösung haben.
@@ -439,9 +440,9 @@ Lichtkoordinatensystem größer sind und dadurch eine höhere Auflösung haben.
 Eine mögliche Implementierung davon heißt Perspective Shadow Mapping (PSM) \cite{PSM2002}.
 Die Idee von PSM ist es zuerst die Szene in Clip Space zu transformieren, um anschließend die Schattenberechnung 
 im Clip Space durchzuführen.
-Es gilt, dass Objekte die nahe an der Kamera sind größer im Clip Space sind, somit sind sie ebenfalls größer auf der Shadow Map, wodurch weniger Perspektivisches 
+Es gilt, dass Objekte die nahe an der Kamera sind größer im Clip Space sind, somit sind sie ebenfalls größer auf der Shadow Map, wodurch weniger perspektivisches 
 Aliasing entsteht.
-PSM scheint eine fantastische Möglichkeit zu sein um Perspektivisches Aliasing zu verhindern,
+PSM scheint eine fantastische Möglichkeit zu sein um perspektivisches Aliasing zu verhindern,
 doch es kommt mit einigen Problemen:
 \begin{itemize}
   \item Dadurch das die Schattenberechnung in Clip Space umgesetzt wird,
@@ -467,11 +468,11 @@ doch es kommt mit einigen Problemen:
 	  \label{fig:psm-point-lights}
 	\end{center}
 \end{figure}
-Perspektivische Transformationen des Kamera Frustum sind sinnvoll für das Bekämpfen von Perspektivischem Aliasing,
+Perspektivische Transformationen des Kamera Frustum sind sinnvoll für das Bekämpfen von perspektivischem Aliasing,
 jedoch ist es nicht nötig das diese, wie bei PSM, an das View Frustum gebunden ist.
-Bei Light Space Perspektivische Shadow Mapping (LiSPSM) \cite{LiPSM2004} wird die Perspektivische Transformation eine
-Matrix so gewählt, dass nur Geraden parallel zu der Shadow Map verzerrt werden. 
-Dies führt dazu das es weiterhin zu weniger Perspektivischem Aliasing, 
+Bei Light Space Perspektivische Shadow Mapping (LiSPSM) \cite{LiPSM2004} wird die perspektivische Transformation eine
+gewählt, dass nur Geraden parallel zu der Shadow Map verzerrt werden. 
+Dies führt dazu das es weiterhin zu weniger perspektivischem Aliasing, 
 jedoch bleiben jetzt Direktionale Lichter, Direktionale Lichter.
 Insbesondere bedeutet das, dass LiSPSM oft leichter zu implementieren ist, da nicht so viele Spezialfälle betrachtet werden müssen wie bei PSM.
 \par
@@ -484,7 +485,7 @@ jedoch lässt sich dies nicht leicht in Hardware implementieren.
 \section{Cascaded Shadow Mapping}
 \label{section:csm}
 Cascaded Shadow Mapping(CSM) \cite{Engel2007}\cite{Zhang2006} ist ein weiteres Verfahren um Perspektives Aliasing zu vermeiden.
-Im Vergleich zu LiSPSM wird der Raum bei CSM nicht verzerrt, sondern in $N$ Räume partitioniert (Abbildung X.Y).
+Im Vergleich zu LiSPSM wird der Raum bei CSM nicht verzerrt, sondern in $N$ Räume partitioniert.
 \par
 Der Algorithmus lässt sich in folge Schritte unterteilen:
 \begin{enumerate}
@@ -518,14 +519,28 @@ CSM eignet sich außerdem für große Lichtquellen wie beispielsweise die Sonne,
 Solche Lichter benötigen eine hohe Auflösung und da die Auflösung in CSM auf $N$ Texturen aufgeteilt wird können hierfür beispielsweise 
 4x 4000x4000 Texturen verwendet werden. Diese Auflösung ist mit LiSPSM nicht möglich da viele Grafikkarten keine
 16000x16000 Texturen unterstützen.
-Es sollte jedoch bei CSM nicht vergessen werden, das es Perspektivisches Aliasing nicht so gut entfernt, wie 
+Es sollte jedoch bei CSM nicht vergessen werden, das es perspektivisches Aliasing nicht so gut entfernt, wie 
 LiSPSM, da CSM eine Diskretisierung von LiSPSM ist.
 In der Praxis ist die Diskretisierung von CSM jedoch selten erkennbar, weshalb CSM verbreiteter wie LiSPSM ist \cite{Survey2011}.
 
 \chapter{Fazit}
-Das schreibe ich am Ende. Aktuell würde ich ehrlich gesagt noch gerne auf VSH eingehen,
-weil PCF ja nicht wirklich Echtzeitfähig ist und
-ich würde gerne eine Echtzeitfähige Kombination von Algorithmen vorstellen.
+Der Shadow Mapping Algorithmus ist gute Option um Schatten in Echtzeit zu berechnen,
+es ist jedoch wichtig die zugrunde liegende Diskretisierungsprobleme zu beachten.
+Selbstverschattung lässt sich in Szenen mit solider Geometrie am besten mit Second-Depth Shadow Mapping bekämpfen,
+in Szenen ohne solider Geometrie kann Selbstverschattung trotzdem mit einer Kombination aus Biasing Methoden verhindert werden.
+Die leichteste Form Schatten Aliasing zu verhindern ist das Anwenden von Antialiasing Filtering wie PCF.
+Perspektivisches Aliasing führt jedoch oft zu Situationen, indenen Filtering nicht weiter hilft.
+In solchen Situationen sind Warping Methoden, wie PSM oder LisPSM, zwar eine gute Option sind aber in der Praxis oft schwer zu implementieren.
+CSM stellt eine Diskretisierung von den Warping Methoden dar, die sehr viel leichter zu implementieren ist, da hier die Schattenberechnung in 
+World Space durchgeführt wird.
+\par
+CSM + PCF + Second Depth Shadow Mapping, stellt eine größtenteils Echtzeitfähige Implementierung, da
+Second Depth Shadow Mapping hat keinen Einfluss auf die Performance und kann Selbstverschattung vollständig verhindern.
+CSM hat ein überdurschnittlich hohen Einfluss auf die Performance, dieses ist jedoch 
+in den meisten Fällen akzeptabel, da die Schattenqualität von CSM oft wichtiger ist.
+Im Bereich des Schattenkanten Antialiasing ist jedoch der Performance Unterschied zwischen PCF und alternativen 
+Antialiasing Methoden nicht akzeptabel, auch wenn diese Kombination auf heutiger Hardware Echtzeitfähig ist, 
+sollte erwähnt werden, dass PCF kein performanter Algorithmus ist.
 
 
 
