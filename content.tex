@@ -6,14 +6,14 @@
 \label{ch:Introduction}
 %motivation.
 Warum sind Schatten in der Computer Grafik eigentlich so wichtig?
-Schatten geben nicht nur besser aussehende Bilder, sondern geben auch wichtige Informationen über Position und Skalierung von Objekte
+Schatten geben nicht nur besser aussehende Bilder, sondern geben auch wichtige Informationen über Position und Skalierung von Objekten im Raum
 (Abbildung \ref{fig:why-shadows}).
 
 \begin{figure}[H]
 	\begin{center}
 		\includegraphics[width=.3\textwidth]{res/img/why-shadows.jpg}
-    \caption{Es ist klar zu erkennen, das der linke Würfel höher über dem Boden schwebt als der rechte Würfel. 
-    Ohne Schatten wäre es unmöglich zu entscheiden, welcher Würfel wieweit über dem Boden schwebt.}
+    \caption{Es ist klar zu erkennen, dass der linke Würfel höher über dem Boden schwebt als der rechte Würfel. 
+    Ohne Schatten wäre es unmöglich zu entscheiden, welcher Würfel sich wieweit über dem Boden befindet.}
 	  \label{fig:why-shadows}
 	\end{center}
 \end{figure}
@@ -23,37 +23,38 @@ Schatten geben nicht nur besser aussehende Bilder, sondern geben auch wichtige I
 Ein Pixel liegt genau dann im Licht, wenn die Gerade zwischen Pixel 
 und Lichtquelle von keinem anderen Objekte blockiert wird.
 In einem Raytracing Renderer ist dies leicht umzusetzen. 
-Um zu bestimmen, ob ein Punkt im Schatten liegt kann ein weiterer Ray von dem Oberflächenpunkt zu dem Licht berechnet werden, 
-falls dieser ein Objekt schneidet so liegt der Punkt im Schatten.
+Um zu bestimmen, ob ein Punkt im Schatten liegt, kann ein weiterer Ray vom Oberflächenpunkt zum Licht berechnet werden.
+Falls dieser ein Objekt schneidet, so liegt der Punkt im Schatten.
 Raytracing ist jedoch ein sehr aufwendiges Verfahren, deshalb wird in Echtzeitberechnungen von Bildern meistens
-ein Rasterisierter Renderer verwendet.
-In einem Rasterisierten Renderer ist es jedoch nicht möglich den Schnitt eines Rays mit der Szene
-zu berechnen um zu bestimmen, ob ein Punkt im Schatten liegt.
+ein rasterisierter Renderer verwendet.
+In einem rasterisierten Renderer ist es jedoch nicht möglich den Schnitt eines Rays mit der Szene
+zu berechnen, um zu bestimmen, ob ein Punkt im Schatten liegt.
 \par
-Der bekannteste Algorithmus der Schatten in mit einem Rasterisiertem Renderer 
-berechnet heißt Shadow Mapping.
+Der bekannteste Algorithmus, der Schatten in mit einem rasterisiertem Renderer 
+berechnet, heißt Shadow Mapping.
 In einem Raytracing Renderer wird für jeden Punkt berechnet, ob das Licht sichtbar ist.
 Bei Shadow Mapping wird dies umformuliert. 
-Ein Punkt liegt im Schatten, genau dann wenn der Punkt vom Licht sichtbar ist.
-Dieses Verfahren kommt jedoch mit einigen Problemen, denn um zu berechnen, ob ein Punkt von dem Licht sichtbar ist,
-wird die Szene aus der Perspektive des Lichtes auf eine Textur gezeichnet.
-Dabei wird sich für jeden Pixel der Textur gespeichert wie, weit der nächstliegende Punkt von dem Licht entfernt ist.
-Da es bei dem abspeichern zu einer Diskretisierung kommt rechnen 
-wir in den Folgeschritten niemals mit der tatsächlichen Tiefe eines Punktes,
-sondern mit einer Rundung zu dem nächstliegenden Diskretisierungswert.
-Außerdem ist es durch die endliche Auflösung der Textur nicht möglich die Tiefenwerte eines exakten Punktes zu speichern,
-sondern nur die Tiefenwerte eines Bereichs, der von einem Pixel auf der Textur beschrieben wird.
+Ein Punkt liegt im Schatten genau dann, wenn der Punkt vom Licht sichtbar ist.
+Dieses Verfahren bringt jedoch einige Probleme mit sich, denn um zu berechnen, ob ein Punkt von dem Licht sichtbar ist,
+wird die Szene aus der Perspektive des Lichts auf eine Textur gezeichnet.
+Dabei wird für jeden Pixel der Textur gespeichert, wie weit der nächstliegende Punkt von dem Licht entfernt ist.
+Da es beim Abspeichern zu einer Diskretisierung kommt, 
+rechnen wir in den Folgeschritten niemals mit der tatsächlichen Tiefe eines Punktes,
+sondern mit einer Rundung zum nächstliegenden Diskretisierungswert.
+Außerdem ist es durch die endliche Auflösung der Textur nicht möglich, die Tiefenwerte eines Punktes exakt zu speichern,
+sondern nur die Tiefenwerte eines Bereiches, der von einem Pixel auf der Textur beschrieben wird.
 \par
 Trotz der vielen Probleme wird Shadow Mapping in vielen Echtzeit Applikationen verwendet.
-Deshalb werde ich mit im weiteren mit dem Algorithmus auseinander setzen und dabei die Probleme die dabei auftreten untersuchen.
-Dabei werde ich zunächst auf die Wert Diskretisierung in der Tiefen Textur eingehen.
+Deshalb werde ich mich im weiteren mit dem Algorithmus auseinandersetzen und dabei die Probleme, die dabei auftreten untersuchen.
+Dabei werde ich zunächst auf die Wert Diskretisierung in der Tiefen-Textur eingehen.
 Dies führt zu einem Artefakt, dass Selbstverschattung genannt wird. 
-Um dieses Artefakt zu verhindern gibt es viele Möglichkeiten, ich will mich jedoch mit Heuristischen Biasing Methoden und Second Depth Shadow Mapping beschäftigen.
-Anschließend werde ich auf Projektives und perspektivisches Aliasing eingehen, diese Artefakte entstehen durch 
-die limitierte Textur Auflösung der Shadow Map.
-Um diese Artefakte zu beheben, gibt es eine überzahl an Verfahren, ich werde mich jedoch auf PSM, LiSPSM, CSM und PCF beschränken 
-diese Verfahren bieten eine gute Grundlage für das Verständnis weiterer komplexerer Verfahren.
-Am Ende will ich in einem Fazit eine Echtzeitfähige Kombination der vorgestellten Verfahren vorstellen.
+Um dieses Artefakt zu verhindern, gibt es viele Möglichkeiten. 
+Ich will mich jedoch mit Heuristischen Biasing Methoden und Second Depth Shadow Mapping beschäftigen.
+Anschließend werde ich auf projektives und perspektivisches Aliasing eingehen. 
+Diese Artefakte entstehen durch die limitierte Texturauflösung der Shadow Map.
+Um diese Artefakte zu beheben, gibt es eine Überzahl an Verfahren. Ich werde mich jedoch auf PSM, LiSPSM, CSM und PCF beschränken.
+Diese Verfahren bieten eine gute Grundlage für das Verständnis weiterer komplexerer Verfahren.
+Am Ende will ich in einem Fazit eine echtzeitfähige Kombination der behandelten Verfahren vorstellen.
 
 
 % thematische einordnung (was auch immer has heißen soll)
@@ -63,61 +64,63 @@ Am Ende will ich in einem Fazit eine Echtzeitfähige Kombination der vorgestellt
 \section{Koordinatensysteme}
 \label{section:coords}
 % hier wäre ein paar zitate schön die das ganze gut auf den punkt bringen.
-Bei dem Rasterisierten Rendern zeichnen wir Objekte die aus Oberflächen (Dreiecken) bestehen.
-Oberflächen bestehen aus Punkten die, die Position der Oberfläche relativ zu dem Objekt Mittelpunkt beschreiben.
-Diese Koordinaten, die relativ zu dem Objekt geben sind, sind in einem Koordinatensystem, das \textbf{Object Space} heißt.
-Um ein Objekt in der Welt verschieben zu können müssen alle Punkte eines Objekts (in Object Space) mit einer Linearen Transformation
+Beim rasterisierten Rendern zeichnen wir Objekte, die aus Oberflächen (Dreiecken) bestehen.
+Oberflächen bestehen aus Punkten, die die Position der Oberfläche relativ zum Objektmittelpunkt beschreiben.
+Diese Koordinaten, die relativ zum Objekt gegeben sind, befinden sich in einem Koordinatensystem, das \textbf{Object Space} heißt.
+Um ein Objekt in der Welt verschieben zu können müssen alle Punkte eines Objekts (in Object Space) mit einer linearen Transformation
 in \textbf{World Space} transformiert werden.
 Die Transformation besteht aus Skalierung, Translation und Rotation und wird meistens als 4x4 Matrix mit homogenen Koordinaten dargestellt.
 Das Konzept einer Kamera lässt sich analog einführen.
-Dabei werden alle Punkte im World Space mit einer Linearen Transformtion in \textbf{View Space} transformiert.
+Dabei werden alle Punkte im World Space mit einer linearen Transformtion in \textbf{View Space} transformiert.
 In View Space sind alle Punkte relativ zu der Kamera.
 In einer weiteren Transformation wird nun die Art der Projektion der Kamera definiert. 
 Dabei wird ein Punkt im View Space in \textbf{Clip Space} transformiert.
-Die Transformation transformiert alle Punkte die sichtbar sind auf einen Punkt innerhalb eines Würfels der Größe 2x2x2 um den Ursprung.
-Alle Oberflächen die außerhalb des Würfels liegen sind von der Kamera nicht sichtbar und werden nicht gezeichnet.
+Die Transformation bildet alle Punkte, die sichtbar sind, auf einen Punkt innerhalb eines Würfels der Größe 2x2x2 um den Ursprung ab.
+Alle Oberflächen, die außerhalb des Würfels liegen sind von der Kamera nicht sichtbar und werden nicht gezeichnet.
 Aktuell haben wir nur Transformationen der Form $\mathbb{R}^3 \rightarrow \mathbb{R}^3$ betrachtet.
 Um die Punkte auf dem Bildschirm darzustellen müssen wir eine Transformation der Form 
-$\mathbb{R}^3 \rightarrow [0,1080]\times[0,1920]$ (Unter der Annahme, das der Bildschirm FullHD ist).
-Diese Transformation wird von der Renderpipeline implizit durchgeführt, dabei werden alle Punkte in Clip Space 
-auf die XY-Ebene projiziert und die Z-Werte werden als Tiefen Wert verwendet. 
+$\mathbb{R}^3 \rightarrow [0,1080]\times[0,1920]$ (Unter der Annahme, das der Bildschirm FullHD ist) anwenden.
+Eine solche Transformation wird von der Renderpipeline implizit durchgeführt. 
+Dabei werden alle Punkte in Clip Space 
+auf die XY-Ebene projiziert und die Z-Werte werden als Tiefenwert verwendet. 
 Die Transformation transformiert somit Punkte von Clip Space in \textbf{Screen Space}.
 
 \section{Projektion}
-In Abschnitt \ref{section:coords} wurde bereits auf die einzelnen Koordinatensysteme und Transformationen eingegangen,
-für die Kamera Projektion ist jedoch eine genaueres Verständis nötig.
+In Abschnitt \ref{section:coords} wurde bereits auf die einzelnen Koordinatensysteme und Transformationen eingegangen.
+Für die Kamera Projektion ist jedoch eine genaueres Verständis nötig.
 Eine Kamera Projektion ist eine Abbildung von View Space in Clip Space.
 Im Allgemeinen lassen sich alle Kamera Projektionen mit einem Frustum (Kegelstumpf) eindeutig charakterisieren.
 Ein Kamera Frustum beschreibt einen Raum im View Space, 
 der durch die Projektion auf einen Würfel im Clip Space abgebildet wird.
 Eine Oberfläche des Frustums, die Near Plane, ist die Oberfläche auf die projiziert wird.
 Die entgegengesetzte Oberfläche heißt Far Plane. 
-Die Far Plane beschreibt die Punkte, die am weit möglichsten von der Kamera entfernt sind und noch sichtbar sind.
-Insbesondere wird eine Gerade von einem Punkt auf der Near Plane zu einem entsprechenden Punkt auf der Far Plane
+Die Far Plane beschreibt die Punkte, die am weitesten von der Kamera entfernt sind und noch sichtbar sind.
+Eine Gerade wird von einem Punkt auf der Near Plane zu einem entsprechenden Punkt auf der Far Plane
 durch die Projektion auf eine Gerade projiziert, die orthogonal zu der XY-Ebene liegt.
 Dadurch wird klar, dass die Projektionstransformation, die Art der Projektion der Kamera definiert.
 \par
 Projektionstransformationen werden oft mit einer 4x4 Matrix implementiert.
-Für eine orthogonale Projektion ist dies nicht nötig, da hier von $\mathbb{R}^3$ nach $\mathbb{R}^3$ abgebildet wird,
-doch bei perspektivischen Projektionen wird die w-Komponente verwendet, um die Perspektive zu implementieren.
+Für eine orthogonale Projektion ist dies nicht nötig, da hier von $\mathbb{R}^3$ nach $\mathbb{R}^3$ abgebildet wird.
+Bei perspektivischen Projektionen wird die W-Komponente verwendet, um die Perspektive zu implementieren.
 Dabei werden nach der Matrix Multiplikation die XYZ-Komponenten durch die W-Komponente des Ergebnisvektors geteilt.
-Dabei ist zu bemerkten, dass die Z-Koordinate ebenfalls durch die w-Komponente geteilt wird. 
-Dies ist im allgemeinen sinnvoll, den es führt zu einer nicht linearen Verteilung der Tiefe, wodurch die Tiefenauflösung
+Dabei ist zu bemerken, dass die Z-Koordinate ebenfalls durch die W-Komponente geteilt wird. 
+Dies ist im allgemeinen sinnvoll, denn es führt zu einer nicht linearen Verteilung der Tiefe, wodurch die Tiefenauflösung
 nahe bei der Kamera höher ist.
 \par
-Es ist zu bemerken, das dadurch das ebenfalls durch die Z-Komponente geteilt wird die Verteilung der Tiefenwerte direkt mit der 
-Art der Projektion zusammenhängt. Beispielsweise haben Orthogonale Projektionen oft eine lineare Verteilung der Tiefenwerte,
-wobei perspektivische Projektionen oft eine nicht lineare Tiefenwert Verteilung mit sich bringen.
+Es ist zu bedenken, dass ebenfalls durch die Z-Komponente durch die W-Komponente geteilt wird, wodurch die Verteilung der Tiefenwerte direkt mit der 
+Art der Projektion zusammenhängt. Beispielsweise haben orthogonale Projektionen oft eine lineare Verteilung der Tiefenwerte,
+wobei perspektivische Projektionen oft eine nicht lineare Verteilung mit sich bringen.
 
 \section{Framebuffer}
-Bei dem Zeichnen der Szene werden die Farb und Tiefenwerte der Pixel in einem Framebuffer gespeichert.
-Tiefenwerte können dabei unterschiedlich kodiert werden. Oft werden unsigned 32-bit Integer verwendet.
-Dadurch das die Werte diskret gespeichert werden, enthält der Framebuffer nach dem rendern nicht die tatsächlichen Farb und 
-Tiefenwerte, sondern eine Rundung auf den nächst gelegenen Werte.
+Zum Zeichnen der Szene werden die Farb- und Tiefenwerte der Pixel in einem Framebuffer gespeichert.
+Tiefenwerte können dabei unterschiedlich kodiert werden. 
+Oft werden unsigned 32-bit Integer verwendet.
+Da die Werte diskret gespeichert werden, enthält der Framebuffer nach dem Rendern nicht die tatsächlichen Farb- und Tiefenwerte.
+Sondern eine Rundung auf den nächst gelegenen Wert.
 Für die Farbwerte ist dieses Verhalten kein Problem, da der Unterschied zwischen 2 Farbwerten, die nebeneinander liegen, nicht erkennbar ist.
 Dieses Verhalten führt jedoch bei Tiefenwerten dazu, dass die Tiefenwerte des Framebuffers niemals die tatsächliche Tiefe beschreiben.
-Dieses Problem ist im Allgemeinen durch die nicht lineare Verteilung der Tiefenwerte, zwischen Near und Far Plane, kein Problem, 
-doch im weiteren werden wir sehen, dass dies zu Problemen führt, wenn die Szene aus einer anderen Perspektive gezeichnet wird 
+Dieses Umstand ist im Allgemeinen durch die nicht lineare Verteilung der Tiefenwerte, zwischen Near und Far Plane, kein Problem.
+Im Weiteren werden wir jedoch sehen, dass dies durchaus zu Problemen führen kann, wenn die Szene aus einer anderen Perspektive gezeichnet wird 
 und die Ergebnisse in einem weiteren Zeichenschritt verwendet werden.
 
 \chapter{Shadow Mapping} %that title blows.
@@ -125,39 +128,39 @@ und die Ergebnisse in einem weiteren Zeichenschritt verwendet werden.
 \section{Uniform Shadow Mapping}
 \label{section:uniform-shadow-mapping}
 Uniform Shadow Mapping \cite{Williams1978} ist ein Algorithmus zu Berechnung von Schatten 
-mit einem Rasterisiertem Renderer. 
+mit einem rasterisiertem Renderer. 
 Es ist das Verfahren, das in der Echtzeitberechnung am meisten zum Einsatz kommt, 
-da es in einem Rasterisiertem Renderer implementierbar ist.
+da es in einem rasterisiertem Renderer implementierbar ist.
 \par
-Wie bereits in der Abschnitt \ref{ch:Introduction} erwähnt ist zur Berechnung von Schatten nötig, festzustellen,
+Wie bereits im Abschnitt \ref{ch:Introduction} erwähnt ist es zur Berechnung von Schatten nötig, festzustellen,
 ob ein anderes Objekt das Licht an einem Punkt blockiert.
-Diese Berechnung für jeden Pixel direkt auszuführen ist in einem Rasterisiertem 
+Diese Berechnung für jeden Pixel direkt auszuführen ist in einem rasterisiertem 
 Renderer nicht möglich.
-Beim Shadow Mapping Verfahren formulieren wir unsere Frage um und betrachten 
-die Äquivalente Frage:
-\textbf{Ist der Punkt von der Perspektive des Lichtes Sichtbar?}
-Wenn ja dann wird das Licht von keinem Objekte blockiert.
-Dieses umformulieren der Fragestellung hat den Vorteil das sie sich in
-einem Rasterisierten Renderer berechnen lässt, indem die Szene aus der Perspektive des Lichtes gezeichnet wird.
+Beim Shadow Mapping Verfahren formulieren wir die Frage um und betrachten 
+die äquivalente Frage:
+\textbf{Ist der Punkt von der Perspektive des Lichtes sichtbar?}
+Wenn ja, dann wird das Licht von keinem Objekte blockiert.
+Dieses Umformulieren der Fragestellung hat den Vorteil, dass sie sich in
+einem rasterisierten Renderer berechnen lässt, indem die Szene aus der Perspektive des Lichtes gezeichnet wird.
 \par
 \textbf{Der Shadow Mapping Algorithmus lässt sich in 2 Schritte 
 unterteilen:}
 \begin{enumerate}
   \item Im ersten Schritt wird ein Koordinatensystem (\textbf{Light View Space}) konstruiert, 
-    dass die Szene relativ zu dem Licht beschreibt.
+    das die Szene relativ zum Licht beschreibt.
     Anschließend wird auf dieses Koordinatensystem eine Projektionstransformtion angewendet.
     Das neue Koordinatensystem heißt \textbf{Light Clip Space}.
     Die Szene wird nun mit dem Light Clip Space Koordinatensystem gezeichnet.
     Dabei muss nur der Tiefenwert für jeden Pixel gespeichert werden.
     Die Textur mit den Tiefenwerten heißt \textbf{Shadow Map}.
-  \item Im zweiten Schritt wird die Szene auf der Perspektive der Kamera gezeichnet.
+  \item Im zweiten Schritt wird die Szene aus der Perspektive der Kamera gezeichnet.
     Gleichzeitig zu der Transformation der Punkte von Object Space zu Clip Space
     werden die Punkte ebenfalls in Light Clip Space transformiert.
-    Nun kann der Abstand des Punktes zu dem Licht 
-    aus der z-Komponente des Punktes im Light Clip Space Koordinatensystems abgelesen werden.
-    Mit der x und y Komponente kann bestimmt werden, auf welchen Pixel in der Shadow Map der Punkt in Schritt 1 abgebildet wurde.
+    Nun kann der Abstand des Punktes zum Licht 
+    aus der Z-Komponente des Punktes im Light Clip Space Koordinatensystems abgelesen werden.
+    Mit der X- und Y-Komponente kann bestimmt werden, auf welchen Pixel in der Shadow Map der Punkt in Schritt 1 abgebildet wurde.
     Anschließend kann durch einen Vergleich bestimmt werden, ob der Punkt im Schatten liegt.
-    Wenn der Tiefenwert des Pixels in Shadow Map kleiner ist als die z-Komponente des Punktes im Light Clip Space Koordinatensystem,
+    Wenn der Tiefenwert des Pixels in Shadow Map kleiner ist als die Z-Komponente des Punktes im Light Clip Space,
     so ist der Punkt von der Perspektive des Lichtes nicht sichtbar und liegt somit im Schatten.
 \end{enumerate}
 \begin{figure}
@@ -175,31 +178,31 @@ unterteilen:}
 Es gibt unterschiedliche Arten von Lichtern die sich alle mit Shadow Mapping darstellen lassen.
 Das direktionales Licht ist ein Licht, bei dem alle Lichtstrahlen parallel verlaufen.
 Dies lässt sich beim Shadow Mapping umsetzen, indem als Projektionsmatrix des Lichtes eine
-Orthogonale Projektion verwendet wird.
-Analog lässt sich ein Spot Light implementieren, indem als Projektion eine Perspektivische Projektion verwendet.
-Punkt Lichter können etwas komplizierter sein, doch wir wollen Punkt Lichter hier einfach als 6 Spotlights betrachten
-die jeweils 90° abdecken dabei wird die Shadow Map in einer Würfel Textur mit 6 Seiten gespeichert.
-Der Shadow Mapping Algorithmus verläuft für alle Lichter identisch nur die Wahl der Projektion wird verändert.
+orthogonale Projektion verwendet wird.
+Analog lässt sich ein Spot Light implementieren, indem als Projektion eine perspektivische Projektion verwendet.
+Punkt-Lichter können etwas komplizierter sein, doch wir wollen Punkt-Lichter hier einfach als 6 Spotlights betrachten
+die jeweils 90° abdecken. Dabei wird die Shadow Map in einer Würfel-Textur mit 6 Seiten gespeichert.
+Der Shadow Mapping Algorithmus verläuft für alle Lichter identisch, nur die Wahl der Projektion wird verändert.
 
-\section{Überblick der Diskretisierung Probleme}
+\section{Überblick der Diskretisierungs Probleme}
 \label{section:problem-overview}
 Beinahe alle Probleme des Shadow Mapping Verfahren entstehen durch die Diskretisierung,
 die gezwungenermaßen in Computern auftritt. 
 Dabei tritt Diskretisierung in mehreren Dimensionen auf.
 \par
-Die erste Form der Diskretisierung die zu Fehlern führt ist die Werte-Diskretisierung 
+Die erste Form der Diskretisierung, die zu Fehlern führt, ist die Werte-Diskretisierung 
 in der Shadow Map. 
-Bei dem Vergleich, ob ein Pixel im Schatten liegt oder von einer Lichtquelle beleuchtet wird,
-kommt es zur falschen Klassifikation. Dieser Fehler entsteht durch runden der Tiefenwerte in der Shadow Map und
+Beim Vergleich, ob ein Pixel im Schatten liegt oder von einer Lichtquelle beleuchtet wird,
+kommt es zur falschen Klassifikation. Dieser Fehler entsteht durch Runden der Tiefenwerte in der Shadow Map und
 durch die numerische Instabilität der Lichttransformation.
 Dies führt zu einem deutlich sichtbaren visuellen Artefakt, das Selbestverschattung genannt wird.
 Selbestverschattung wird in Abschnitt \ref{section:self-shadow} genauer erklärt.
 \par
 Die zweite Dimension, in der Diskretisierungsfehler auftreten, ist die Pixel Auflösung der Shadow Map.
-Diskretisierungsfehler die dadurch auftreten erzeugen Aliasing Artefakte.
-Eine Möglichkeit diese zu verbessern funktioniert analog zu Geometrie Antialiasing, dabei kann jedoch
-nicht die Shadow Map selbst gefiltert werden, sondern es werden die Vergleichsergebnisse gefiltert.
-Dies führt dazu das die Schattenkanten geglättet werden. 
+Diskretisierungsfehler, die dadurch auftreten, erzeugen Aliasing Artefakte.
+Eine Möglichkeit diese zu verbessern funktioniert analog zu Geometrie Antialiasing. 
+Dabei kann jedoch nicht die Shadow Map selbst gefiltert werden, sondern es werden die Vergleichsergebnisse gefiltert.
+Dies führt dazu, dass die Schattenkanten geglättet werden. 
 Eine mögliche Implementierung hiervon heißt Percentage Closer Filtering
 und wird in Abschnitt \ref{section:pcf} behandelt.
 \par
@@ -207,12 +210,17 @@ Um andere Methoden zur Verbesserung des Aliasing Problems zu betrachten ist eine
 nötig. 
 Dabei wird Aliasing in 2 Kategorien eingeteilt:
 \begin{itemize}
-  \item \textbf{Perspektive Aliasing} entsteht dadurch, dass Oberflächen die nahe bei der Kamera sind groß auf dem 
-    Bildschirm dargestellt werden, jedoch wird für die Schattenberechnung dieselbe Anzahl an Shadow Map Pixeln verwendet,
-    wie für Oberflächen, die sehr weit von der Kamera entfernt sind. 
+  \item \textbf{Perspektive Aliasing} entsteht dadurch, dass Oberflächen, die nahe bei der Kamera sind groß auf dem 
+    Bildschirm dargestellt werden, womöglich aber klein in der Shadow Map sind.
+    Falls eine Oberfläche nah bei der Kamera ist, so folgt daraus, dass sie groß im Clip Space ist.
+    Leider folgt daraus nicht, dass die Oberfläche ebenfalls groß im Light Clip Space ist.
+    Daraus folgt, dass 
+    Oberflächen, die nahe bei der Kamera sind, groß im Clip Space sind, aber teilweise klein im Light Clip Space,
+    dadurch sind sie groß auf dem Bildschirm sind, aber nur sehr klein in der Shadow Map. 
+    Die Schattenauflösung an solchen Oberflächen ist besonders schlecht.
     Der Effekt von Perspektive Aliasing ist maximal, wenn das Licht direkt in die Kamera leuchtet, denn hier 
-    sind Oberfläche nahe bei der Kamera im Clip Space groß aber im Light Clip Space klein, 
-    wodurch Oberflächen nahe bei der Kamera wenig Pixel auf der Shadow Map zugeordnet sind. 
+    sind Oberflächen nahe bei der Kamera im Clip Space groß aber im Light Clip Space klein.
+    Hier werden Oberflächen nahe bei der Kamera wenigen Pixeln auf der Shadow Map zugeordnet. 
     Dieses Szenario nennt man Duelling Frusta. 
     Analog ist der Effekt minimal, wenn die Lichtrichtung gleich der Sichtrichtung ist.
     \begin{figure}[H]
@@ -225,7 +233,7 @@ Dabei wird Aliasing in 2 Kategorien eingeteilt:
   \item \textbf{Projektives Aliasing} entsteht, wenn zwischen Pixeln in der Shadow Map und Pixeln 
     im Screen Space kein 1:1 Verhältnis existiert. Dieser Effekt ist besonders stark bei Oberflächen
     mit Normalen orthogonal zu der Lichtrichtung. Diese Oberflächen nehmen auf der Shadow Map nur sehr wenig 
-    Pixel ein, wobei sie im Screen Space sehr groß sein können. 
+    Pixel ein, wogegen sie im Screen Space sehr groß sein können. 
     \begin{figure}[H]
       \begin{center}
         \includegraphics[width=1\textwidth]{res/img/projective-aliasing/image.jpg}
@@ -255,8 +263,7 @@ Dies kann an folgen Gründen liegen.
     abgerundet oder die Z-Komponente des Punktes in Light Clip Space aufgerundet worden sein.
   \item In der Shadow Map kann nicht die Tiefe eines Bereichs
     gespeichert werden, sondern nur die Tiefe eines Punktes.
-    Für Oberflächen die parallel zur Lichtrichtung liegen und klein auf der Shadow Map dargestellt werden ist dieses Problem
-    verstärkt.
+    Bei Oberflächen die parallel zur Lichtrichtung liegen und klein auf der Shadow Map dargestellt tritt dieses Problem verstärkt auf.
 \end{enumerate}
 
 
@@ -268,8 +275,8 @@ Dies kann an folgen Gründen liegen.
       Hier sind 2 Diskretisierungen zu bemerken; 
       die Breite der Shadow Map Pixel und der Höhenunterschied der Pixel (Tiefenauflösung).
       Der schwarze Teil der Box Oberfläche liegt im Licht, 
-      da hier der Tiefenwert in der Shadow Map größer ist als der Abstand der Oberfläche zu dem Licht.
-      analog liegt der gelbe Teil der Box Oberfläche im Schatten.
+      da hier der Tiefenwert in der Shadow Map größer ist als der Abstand der Oberfläche zum Licht.
+      Analog liegt der gelbe Teil der Box Oberfläche im Schatten.
     }
 	  \label{fig:shadow-acne-illu}
 	\end{center}
@@ -281,14 +288,14 @@ Bildlich kann man sich vorstellen, dass die gelbe gezackte Linie
 (aus Abbildung: \ref{fig:shadow-acne-illu}) in die Lichtrichtung verschoben wird.
 Es tritt keine Selbstverschattung mehr auf, wenn die komplette gelbe Linie unterhalb der Oberfläche liegt.
 \par
-Ein Konstanter Bias kann dabei helfen die Rundungsfehler (Grund: 1) zu verhindern.
-Jedoch tritt weiterhin Selbstverschattung an Oberflächen auf die fast parallel zur Lichtrichtung liegen.
+Ein Konstanter Bias kann dabei helfen die Rundungsfehler zu verhindern.
+Jedoch tritt weiterhin Selbstverschattung an Oberflächen auf, die fast parallel zur Lichtrichtung liegen.
 An diesen Oberflächen kann Selbstverschattung nur durch einen sehr großen Bias-Wert verhindert werden.
 Dies führt jedoch zu einem Artefakt, dass Peter Panning heißt (Abbildung: \ref{fig:peter-panning}).
-Dadurch das wir die Tiefenwerte der Shadow Map in Richtung des Lichtes mit einem Bias-Wert verschieben,
+Dadurch, dass wir die Tiefenwerte der Shadow Map in Richtung des Lichtes mit einem Bias-Wert verschieben,
 verschieben wir auch die Schatten selbst.
-Dieses Artefakt ist sehr unangenehm, den wie in Abschnitt \ref{ch:Introduction} erläutert, geben uns Schatten Informaitonen
-über Skalierung und Position, wenn wir also Schatten verschieben dann führt das zu einer irreführenden Darstellung der Szene.
+Dieses Artefakt ist irritierend, den wie in Abschnitt \ref{ch:Introduction} erläutert, geben uns Schatten Informationen
+über Skalierung und Position. Wenn Schatten, durch Peter Panning verschoben werden, dann führt das zu einer irreführenden Darstellung der Szene.
 
 \begin{figure}[H]
 	\begin{center}
@@ -304,96 +311,98 @@ Dieses Artefakt ist sehr unangenehm, den wie in Abschnitt \ref{ch:Introduction} 
 
 \subsection{Heuristisches Biasing}
 \label{section:heuristic-biasing}
-Wie wir im letzten Kapitel gesehen haben kommt es ohne einen bias zu Selbestverschattung
-und falls ein zu großer Bias verwendet wird kommt es zu Peter-Panning.
-Es sei außerdem zu bemerken, das bei Oberflächen die orthogonal zu der Lichtrichtung liegen 
-ein nur sehr geringer Bias benötigt wird, wobei für Oberflächen die parallel zu der Lichtrichtung 
-liegen ein großer bias nötig ist.
-Diese Beobachtung lässt sich ausnutzen indem der Bias Wert proportional zu dem sinus des Winkels zwischen
-der Lichtrichtung und der Oberflächen Normalen gewählt wird.
-Anstatt, den Winkel direkt auszurechnen, lässt sich dies effektiv mit dem Standard-Skalarprodukt berechnen.
+Wie wir im letzten Kapitel gesehen haben, kommt es ohne einen Bias zu Selbestverschattung
+und falls ein zu großer Bias verwendet wird, kommt es zu Peter Panning.
+Es sei außerdem zu bemerken, dass bei Oberflächen, die orthogonal zur Lichtrichtung liegen, 
+ein nur sehr geringer Bias benötigt wird, wobei für Oberflächen, die parallel zur Lichtrichtung 
+liegen ein großer Bias nötig ist.
+Diese Beobachtung lässt sich ausnutzen, indem der Bias Wert proportional zum sinus des Winkels zwischen
+der Lichtrichtung und der Oberflächennormalen gewählt wird.
+Anstatt den Winkel direkt auszurechnen, lässt sich dies effektiv mit dem Standard-Skalarprodukt berechnen.
 Ein solcher Bias wird Slope-Scale-Bias genannt.
 Eine alternative Möglichkeit den proportionalen Bias einzusetzen heißt Normal Offset Shadow Mapping.
-Dabei wird die Oberfläche anstatt, in die Richtung des Lichtes, in die Richtung des Normalen Vektors 
+Dabei wird die Oberfläche anstatt in die Richtung des Lichtes in die Richtung des Normalen Vektors 
 verschoben.
 \\
-Beide dieser Verfahren verwenden die selbe Heuristik wobei die Stärke des Bias 
+Beide dieser Verfahren verwenden dieselbe Heuristik wobei die Stärke des Bias 
 proportional zu $1 - \overrightarrow{l} * \overrightarrow{n}$, wobei $\overrightarrow{l}$ 
 die Lichtrichtung und $\overrightarrow{n}$ der Normalenvektor der Oberfläche ist.
 Es sollte erwähnt werden, dass für Oberflächen die orthogonal zu der Lichtrichtung liegen
-der heuristische Bias 0 ist,
-deshalb werden diese Biasing Methoden oft mit einem konstanten Bias kombiniert.
+der heuristische Bias 0 ist.
+Deshalb werden diese Biasing-Methoden oft mit einem konstanten Bias kombiniert.
 \par
-Das große Problem mit heuristischen Biasing Methoden ist, dass 
-sie für jede Szene neu konfiguriert werden müssen,
-denn falls der Bias zu groß ist, kommt es zu Peter-Panning und falls er zu klein gewählt 
-wird kann es zu Selbestverschattung kommen.
+Das große Problem mit heuristischen Biasing-Methoden ist, dass 
+sie für jede Szene neu konfiguriert werden müssen.
+Denn falls der Bias zu groß ist, kommt es zu Peter-Panning und falls er zu klein gewählt 
+wird, kann es zu Selbstverschattung kommen.
 Um die Konfiguration leichter zu machen werden oft Kombinationen 
-von unterschiedlichen Biasing Methoden verwendet wie zum Beispiel : \\
+von unterschiedlichen Biasing-Methoden verwendet wie zum Beispiel : \\
 Slope-Scale-Bias + Normal-Offset-Shadow-Mapping + Konstanter Bias.
 %TODO WHY DOES NORMAL OFFSET SHADOW MAPPING WORK.
 \subsection{Alternative Techniken}
 \label{section:sdsm}
 Eine Alternative zu einem Bias Wert heißt Second Depth Shadow Mapping.
-Dieses funktioniert jedoch nur für Scenen mit solider Geometrie.
-Dabei wird in der Shadow Map anstatt der Geometrie die am nähesten zum 
-Licht ist, die Geometrie abgespeichert die am zweit nähesten zum Licht ist.
+Dieses funktioniert jedoch nur für Szenen mit solider Geometrie.
+Dabei wird in der Shadow Map anstatt der Geometrie, die am nächsten zum 
+Licht ist, die Geometrie abgespeichert die am zweit nächsten zum Licht ist.
 Dies lässt sich effektiv implementieren, indem anstatt von Back Face Culling, Front Face Culling verwendet wird.
-Dadurch kommt es zu keiner Selbestverschattung mehr, da die Oberfläche die am nähsten an der 
-Lichtquelle liegt immer im Licht ist, denn beim Vergleich der Tiefenwerte werden
-keine zwei Werte verglichen, die nah beieinander liegen.
+Dadurch kommt es zu keiner Selbestverschattung mehr, da die Oberfläche, die am nächsten an der 
+Lichtquelle liegt, immer im Licht ist. 
+Denn beim Vergleich der Tiefenwerte werden keine zwei Werte verglichen, die nah beieinander liegen.
 Es könnte jedoch Selbestverschattung auf der Rückseite der Geometrie auftreten.
-Da die Geometrie solide ist, kann für Oberflächen die von dem Licht wegzeigen direkt 
-angenommen werden das sie im Schatten liegen.
+Da die Geometrie solide ist, kann für Oberflächen, die vom Licht abgewandt sind direkt 
+angenommen werden, dass sie im Schatten liegen.
 Außerdem tritt kein Peter-Panning auf, da kein Bias verwendet wird.
-Doch wie bereits erwähnt erfordert Second Depth Shadow Mapping, das die
+Doch wie bereits erwähnt erfordert Second Depth Shadow Mapping, dass die
 Geometrie der Szene solide ist.
 Doch auch mit solider Geometrie kann Selbestverschattung auftreten.
-Wenn die Geometrie sehr dünn ist dann, dann ist der Tiefenunterschied zwischen Front und Back Face zu gering, 
-wodurch beim Vergleich wieder Selbstverschattung auftritt.
+Wenn die Geometrie sehr dünn ist, ist der Tiefen unterschied zwischen Front und Back Face zu gering, 
+wodurch es beim Vergleich der Tiefenwerte wieder zu Selbstverschattung kommt.
 
 \section{Schattenkanten Antialiasing}
 \label{section:pcf}
 In der Implementierung des Shadow Mapping Algorithmus aus Abschnitt \ref{section:uniform-shadow-mapping} wird für jeden Oberflächenpunkt 
 binär klassifiziert, ob der Punkt im Schatten liegt. Dies führt jedoch bei geringer Shadow Map Auflösung zu Aliasing.
-Eine Möglichkeit diesen Effekt zu verringern ist Schattenkanten zu glätten.
+Eine Möglichkeit diesen Effekt zu verringern, ist Schattenkanten zu glätten.
 Dabei ist zu beachten, dass bekannte Antialiasing Algorithmen wie MSAA oder SSAA nicht einsetzbar sind.
-Wenn auf die Shadow Map direkt ein solcher Filter angewandt wird, so Filtern wir die Tiefenwerte und nicht
-den Anteil des Lichtes der einen Punkt von einem Licht erreicht.
+Wenn auf die Shadow Map direkt ein solcher Filter angewandt wird, so filtern wir die Tiefenwerte.
+Mit der gefilterten Shadow Map lässt sich nun keine Schattenberechnung mehr durchführen, da alle Tiefenwerte 
+verfälscht sind.
+Anstelle der Tiefenwerte, muss die Klassifikation, ob ein Punkt im Licht ist, gefiltert werden.
 \par
 Percentage Closer Filtering(PCF) \cite{PCF1987} ist ein einfacher Algorithmus der Schattenkanten glättet.
-Dabei wird bei PCF nicht die Shadow Map selbst gefiltert, sondern die Klassifikation, ob ein Pixel im Schatten liegt.
+Dabei wird bei PCF nicht die Shadow Map selbst gefiltert, sondern die Klassifikation.
 Der Algorithmus wird für jeden Oberflächenpunkt ausgeführt und lässt sich in 3 Schritte unterteilen:
 \begin{enumerate}
-  \item Wie zuvor wird die Position des Punktes im Light Clip Space Koordinatensystems bestimmt.
+  \item Wie zuvor wird die Position des Punktes in Light Clip Space bestimmt.
   \item Der Vergleich der Tiefenwerte wird nun jedoch für alle Pixel der Shadow Map in einem $N\times{}N$ Feld durchgeführt.
   \item Der Durchschnitt der binären Vergleiche stellt den Anteil des Lichtes dar, das den Punkt erreicht.
 \end{enumerate}
 \par
 Der Parameter $N$ beschreibt dabei die Auflösung der Schattenglättung.
 \par
-Dadurch das bei PCF für jeden Punkt $N^2$ Shadow Map Pixel gelesen werden müssen gehört PCF zu den 
+Dadurch, dass bei PCF für jeden Punkt $N^2$ Shadow Map Pixel gelesen werden müssen, gehört PCF zu den 
 langsameren Antialiasing Algorithmen.
 In \cite{PCF1987} wird dieses Problem bemerkt und es werden stochastische Sampling Methoden vorstellt.
 Dabei werden die Pixel, die für den Vergleich verwendet werden, stochastisch mittels Monte Carlo Sampling gewählt.
 \par
 Es ist jedoch zu bemerken, dass selbst mit Monte Carlo Sampling, PCF kein effektiver Algorithmus ist und
 in dieser Ausarbeitung nur aus Gründen der Vollständigkeit enthalten ist. 
-Die Schattenglättung in der Echtzeitberechnung ist ein großes Thema mit vielen
-Algorithmen, dazu gehört Variance Shadow Mapping, Exponential Shadow Mapping, Logartihmic Shadow Mapping,
-Percentage Closer Soft Shadows und noch einige mehr auf die ich hier nicht eingehen werde.
+Die Schattenglättung in der Echtzeitberechnung ist ein großes Thema mit vielen Algorithmen. 
+Dazu gehört Variance Shadow Mapping, Exponential Shadow Mapping, Logartihmic Shadow Mapping,
+Percentage Closer Soft Shadows und noch einige mehr auf die ich hier nicht weiter eingehen werde.
 
 \section{Bestimmen eines engen Licht Frustums}
 \label{section:fit-the-frustum}
 Die Auflösung der Shadow Map steht im direkten Verhältnis zur Größe des Frustum.
 Die Tiefe des Frustums (Abstand zwischen Near und Far Plane) ist relativ zu der Tiefenauflösung der Shadow Map.
 Der Bereich, der von einem Pixel der Shadow Map beschrieben wird, ist relativ zu der Breite und Höhe des Frustum.
-Ist das Frustum groß, so beschreibt ein Pixel der Shadow Map einen großen Bereich in der Welt.
+Ist das Frustum groß, so beschreibt ein Pixel der Shadow Map einen großen Bereich im World Space.
 \par
-Daraus folgt, dass eine Möglichkeit die Qualität der Schatten zu verbessern das bestimmen eines möglichst kleinem
+Daraus folgt, dass eine Möglichkeit die Qualität der Schatten zu verbessern, das Bestimmen eines möglichst kleinem
 Licht Frustum ist. Dabei sollte für das Licht Frustum gelten:
 \begin{enumerate}
-  \item Alle Oberflächenpunkte die Schatten werfen können sind in dem Licht Frustum enthalten.
+  \item Alle Oberflächenpunkte die Schatten werfen können, sind in dem Licht Frustum enthalten.
   \item Die Form des Licht Frustum bleibt gleich.
   \item Die Größe des Licht Frustum ist minimal.
 \end{enumerate}
@@ -404,14 +413,14 @@ Licht Frustum ist. Dabei sollte für das Licht Frustum gelten:
 	  \label{fig:fit-the-frustum}
 	\end{center}
 \end{figure}
-Eine einfache Implementierung hiervon funktioniert wie folgt:
+Eine einfache Implementierung funktioniert wie folgt:
 \begin{enumerate}
   \item Transformiere alle Punkte des 2x2x2 Würfels im Clip Space mit der Inversen Kamera Projektion
     in View Space. Die Eckpunkte des Würfels werden dabei auf die Eckpunkte des Kamera Frustum abgebildet.
   \item Transformiere das Kamera Frustum in Light View Space.
   \item Bestimme die maximale und minimale Z-Komponente des Kamera Frustum in Light View Space.
   \item Die Far Plane ist nun durch die maximale Z-Komponente definiert und die Near 
-    Plane durch die minimale. Dadurch das Punkte die außerhalb des Kamera Frustums liegen ebenfalls Schatten werfen können,
+    Plane durch die minimale. Dadurch, dass Punkte die außerhalb des Kamera Frustums liegen ebenfalls Schatten werfen können,
     wird die Near Plane oft nach hinten verschoben.
 \end{enumerate}
 Hier wird sichergestellt, dass alle Punkte die im Kamera Frustum enthalten sind, ebenfalls im
@@ -423,45 +432,46 @@ Licht Frustum enthalten ist.
 \par
 Bei Lichtern mit einer perspektivischen Projektion, kann nur die Near und Far Plane angepasst werden, da sich sonst die Form der Projektion
 ändert. 
-Dadurch kommt nur zu einer Verbesserung der Tiefenauflösung.
-Für Lichter mit Orthogonaler Projektion kann ebenfalls, die effektive Pixel Auflösung der Shadow Map verbessert werden.
+Dadurch kommt es nur zu einer Verbesserung der Tiefenauflösung.
+Für Lichter mit orthogonaler Projektion kann ebenfalls die effektive Pixel Auflösung der Shadow Map verbessert werden.
 Für solche Lichter kann das Kamera Frustum, wie bei Lichtern mit perspektivischer Projektion, in Light View Space 
 transformiert werden, um anschließend eine Bounding Box um das Kamera Frustum zu bestimmen. 
-Für große Direktionale Lichter, wie die Sonne ist dies besonders wichtig, da sonst die gesamte Szene in der Shadow Map enthalten wäre,
-wodurch die Auflösung der Shadow Map extrem gering wäre.
+Für große direktionale Lichter wie die Sonne ist dies besonders wichtig, da sonst die gesamte Szene in der Shadow Map enthalten wäre,
+wodurch die Auflösung der Shadow Map extrem gering ausfallen würde.
 
 \section{Perspective Shadow Mapping}
 \label{section:psm}
-Eine Möglichkeit um perspektivisches Aliasing zu verhindern ist das verzerren 
+Eine Möglichkeit, um perspektivisches Aliasing zu verhindern, ist das Verzerren 
 der Shadow Map. 
 Dabei wird das Light Clip Space Koordinatensystem so verzerrt, dass Oberflächen die nahe an der Kamera liegen in dem
-Lichtkoordinatensystem größer sind und dadurch eine höhere Auflösung haben.
+Lichtkoordinatensystem größer sind und somit eine höhere Schatten Auflösung haben.
 \newline
-Eine mögliche Implementierung davon heißt Perspective Shadow Mapping (PSM) \cite{PSM2002}.
-Die Idee von PSM ist es zuerst die Szene in Clip Space zu transformieren, um anschließend die Schattenberechnung 
+Eine mögliche Implementierung davon wird auch Perspective Shadow Mapping (PSM) \cite{PSM2002} genannt.
+Die Idee von PSM ist es, zuerst die Szene in Clip Space zu transformieren, um anschließend die Schattenberechnung 
 im Clip Space durchzuführen.
-Es gilt, dass Objekte die nahe an der Kamera sind größer im Clip Space sind, somit sind sie ebenfalls größer auf der Shadow Map, wodurch weniger perspektivisches 
+Es gilt, dass Objekte die sich nahe an der Kamera befinden, größer im Clip Space sind.
+Somit sind sie ebenfalls größer auf der Shadow Map, wodurch weniger perspektivisches 
 Aliasing entsteht.
-PSM scheint eine fantastische Möglichkeit zu sein um perspektivisches Aliasing zu verhindern,
-doch es kommt mit einigen Problemen:
+PSM scheint eine fantastische Möglichkeit zu sein, um perspektivisches Aliasing zu verhindern.
+Jedoch kommt es zu folgenden Problemen:
 \begin{itemize}
-  \item Dadurch das die Schattenberechnung in Clip Space umgesetzt wird,
+  \item Dadurch, dass die Schattenberechnung in Clip Space umgesetzt wird,
     müssen Direktionale Lichter als Punkt Lichter und Punkt Lichter teilweise als Direktionale Lichter interpretiert werden.
-    Das führt dazu, dass das bildliche Denken in diesem Raum sehr schwierig ist (Abbildungen \ref{fig:psm-dir-lights} \& \ref{fig:psm-point-lights}).
+    Das entspricht nicht dem menschlichen Sehgewohnheiten und kann verwirrend wirken.
   \item Es tritt weiterhin Projektives Aliasing auf.
   \item Die Verbesserung der Schattenauflösung nahe bei der Kamera führt zu einer starken Reduzierung der Schattenauflösung
     für Objekte, die weiter von der Kamera entfernt sind.
 \end{itemize}
 \begin{figure}
 	\begin{center}
-    \includegraphics[width=0.6\textwidth]{res/img/psm_dir_lights.png}
+    \includegraphics[width=0.8\textwidth]{res/img/psm_dir_lights.png}
     \caption{Direktionale Lichter in World Space (oben) werden Punkt Lichter im Clip Space (unten).}
 	  \label{fig:psm-dir-lights}
 	\end{center}
 \end{figure}
 \begin{figure}
 	\begin{center}
-    \includegraphics[width=0.6\textwidth]{res/img/psm_point_lights.png}
+    \includegraphics[width=0.8\textwidth]{res/img/psm_point_lights.png}
     \caption{[Links]: Ein Punkt Licht vor dem Betrachter bleibt ein Punkt Licht. \newline
       [Mitte]: Ein Punkt Licht hinter dem Betrachter wird ein
     invertiertes Punkt Licht (alle Lichtstrahlen gehen zu einem Punkt).}
@@ -469,22 +479,23 @@ doch es kommt mit einigen Problemen:
 	\end{center}
 \end{figure}
 Perspektivische Transformationen des Kamera Frustum sind sinnvoll für das Bekämpfen von perspektivischem Aliasing,
-jedoch ist es nicht nötig das diese, wie bei PSM, an das View Frustum gebunden ist.
-Bei Light Space Perspektivische Shadow Mapping (LiSPSM) \cite{LiPSM2004} wird die perspektivische Transformation eine
+jedoch ist es nicht nötig, dass diese, wie bei PSM, an das View Frustum gebunden ist.
+Bei Light Space Perspektivische Shadow Mapping (LiSPSM) \cite{LiPSM2004} wird die perspektivische Transformation so
 gewählt, dass nur Geraden parallel zu der Shadow Map verzerrt werden. 
-Dies führt dazu das es weiterhin zu weniger perspektivischem Aliasing, 
-jedoch bleiben jetzt Direktionale Lichter, Direktionale Lichter.
-Insbesondere bedeutet das, dass LiSPSM oft leichter zu implementieren ist, da nicht so viele Spezialfälle betrachtet werden müssen wie bei PSM.
+Dies führt dazu, dass es weiterhin zu weniger perspektivischem Aliasing kommt.
+Jedoch bleiben jetzt direktionale Lichter, direktionale Lichter.
+Das bedeutet, dass LiSPSM oft leichter zu implementieren ist, da nicht so viele Spezialfälle betrachtet werden müssen.
 \par
 Die Stärke der Verzerrungsmatrix ist durch einen Parameter $n$ definiert.
 In dem gleichen Paper in dem LiSPSM vorgestellt wurde, wird ebenfalls eine Wahl für $n$ vorgestellt,
-durch die Projektives Aliasing in den meisten Fällen minimiert wird: $ n_{opt} = \frac{near + \sqrt{near * far}}{sin(\gamma)} $. Wobei $\gamma{}$ der Winkel zwischen Lichtrichtung und Kamera Sichtrichtung ist.
+durch die projektives Aliasing in den meisten Fällen minimiert wird: $ n_{opt} = \frac{near + \sqrt{near * far}}{sin(\gamma)} $. 
+Wobei $\gamma{}$ den Winkel zwischen Lichtrichtung und Kamera Sichtrichtung beschreibt.
 \par
-Ebenfalls wird in \cite{LiPSM2004} erwähnt, dass eine Logarithmische Parameterisierte Shadow Map, eine Tatsächlich optionale Lösung, wäre
-jedoch lässt sich dies nicht leicht in Hardware implementieren.
+Ebenfalls wird in \cite{LiPSM2004} erwähnt, dass eine logarithmisch parameterisierte Shadow Map, eine optimale Lösung wäre.
+Jedoch lässt sich dies nicht leicht in Hardware implementieren.
 \section{Cascaded Shadow Mapping}
 \label{section:csm}
-Cascaded Shadow Mapping(CSM) \cite{Engel2007}\cite{Zhang2006} ist ein weiteres Verfahren um Perspektives Aliasing zu vermeiden.
+Cascaded Shadow Mapping(CSM) \cite{Engel2007}\cite{Zhang2006} ist ein weiteres Verfahren, um perspektivisches Aliasing zu vermeiden.
 Im Vergleich zu LiSPSM wird der Raum bei CSM nicht verzerrt, sondern in $N$ Räume partitioniert.
 \par
 Der Algorithmus lässt sich in folge Schritte unterteilen:
@@ -497,50 +508,55 @@ Der Algorithmus lässt sich in folge Schritte unterteilen:
     Zeichne anschließend die Szene mit den $N$ berechneten Projektionen.
     Die $N$ erzeugeten Shadow Maps heißen Kaskaden.
     Jede Kaskade hat dieselbe Auflösung, beschreibt jedoch einen unterschiedlich großen Bereich.
-    Kaskaden, die weiter von der Kamera entfernt sind, sind größer und die Schatten die durch diese Kaskaden erzeugt werden haben somit eine 
+    Kaskaden, die weiter von der Kamera entfernt sind, sind größer und die Schatten, die durch diese Kaskaden erzeugt werden, haben somit eine 
     geringere Qualität.
 
   \item Zeichne die Szene aus der Kamera Perspektive. 
-    Die Schatten berechnung muss dabei leicht angepasst werden.
-    Bei dem Vergleich, im Shadow Mapping Algorithmus, muss jetzt der Tiefenwert mit allen Kaskaden verglichen werden.
+    Die Schattenberechnung muss dabei leicht angepasst werden.
+    Beim Vergleich im Shadow Mapping Algorithmus muss jetzt der Tiefenwert mit allen Kaskaden verglichen werden.
 \end{enumerate}
-Es ist zu bemerken, dass CSM eine Diskretisierung von LiSPSM, denn falls $N\rightarrow\infty$ sind beide Verfahren identisch. 
-Durch die Diskretisierung kommt es dazu das der Übergang zwischen Kaskaden oft sichtbar ist.
-Es ist Möglich LiSPSM zu verwenden um die einzelnen Kaskaden zu zeichnen, doch dies führt dazu das die Schattenberechnung wieder
-in Post Perspektive Space durchgeführt wird. 
-Eine andere Möglichkeit ohne die Form des Lichtfrustums zu verändern basiert darauf die Kaskaden zu überlappen,
-dadurch Schattenqualität verloren doch dadurch das der Übergang zwischen den Kaskaden nicht mehr sichtbar ist 
-führt es dann doch zu einer steigerung der Schattenqualität.
+Es ist zu bemerken, dass CSM eine Diskretisierung von LiSPSM ist. 
+Denn falls $N\rightarrow\infty$ sind beide Verfahren identisch. 
+Durch die Diskretisierung kommt es dazu, dass der Übergang zwischen Kaskaden oft sichtbar ist.
+Es ist möglich LiSPSM zu verwenden, um die einzelnen Kaskaden zu zeichnen. 
+Doch dies führt dazu, dass die Schattenberechnung wieder
+in Clip Space durchgeführt wird. 
+Eine andere Möglichkeit ohne die Form des Lichtfrustums zu verändern, basiert darauf die Kaskaden zu überlappen,
+wodurch Schattenqualität verloren geht. 
+Doch da Übergang zwischen den Kaskaden nicht mehr sichtbar ist,
+führt es das zu einer Steigerung der Schattenqualität.
 \par
-Der Große Vorteil von CSM ist, dass die berechnung der Schatten nicht in Post Perspective Space wie bei PSM oder LiSPSM 
-durchgeführt wird. 
-Dadurch können Punkt Lichter als Punkt Lichter und Direktionale Lichter als Direktionale Lichter behandelt werden.
-CSM eignet sich außerdem für große Lichtquellen wie beispielsweise die Sonne, die die gesamte Szene beleuchten.
-Solche Lichter benötigen eine hohe Auflösung und da die Auflösung in CSM auf $N$ Texturen aufgeteilt wird können hierfür beispielsweise 
-4x 4000x4000 Texturen verwendet werden. Diese Auflösung ist mit LiSPSM nicht möglich da viele Grafikkarten keine
-16000x16000 Texturen unterstützen.
-Es sollte jedoch bei CSM nicht vergessen werden, das es perspektivisches Aliasing nicht so gut entfernt, wie 
+Der große Vorteil von CSM ist, dass die Berechnung der Schatten nicht in Clip Space durchgeführt wird. 
+Dadurch können Punktlichter als Punktlichter und direktionale Lichter als direktionale Lichter behandelt werden.
+CSM eignet sich außerdem für große Lichtquellen wie beispielsweise Sonnen, die die gesamte Szene beleuchten.
+Solche Lichter benötigen eine hohe Auflösung. 
+Da die Auflösung in CSM auf $N$ Texturen aufgeteilt wird, können hierfür beispielsweise 4x4000x4000 Texturen verwendet werden. 
+Diese Auflösung ist mit LiSPSM nicht möglich, da viele Grafikkarten keine 16000x16000 Texturen unterstützen.
+Es sollte jedoch bei CSM nicht vergessen werden, dass es perspektivisches Aliasing nicht so gut entfernt, wie 
 LiSPSM, da CSM eine Diskretisierung von LiSPSM ist.
 In der Praxis ist die Diskretisierung von CSM jedoch selten erkennbar, weshalb CSM verbreiteter wie LiSPSM ist \cite{Survey2011}.
 
 \chapter{Fazit}
-Der Shadow Mapping Algorithmus ist gute Option um Schatten in Echtzeit zu berechnen,
-es ist jedoch wichtig die zugrunde liegende Diskretisierungsprobleme zu beachten.
-Selbstverschattung lässt sich in Szenen mit solider Geometrie am besten mit Second-Depth Shadow Mapping bekämpfen,
-in Szenen ohne solider Geometrie kann Selbstverschattung trotzdem mit einer Kombination aus Biasing Methoden verhindert werden.
-Die leichteste Form Schatten Aliasing zu verhindern ist das Anwenden von Antialiasing Filtering wie PCF.
-Perspektivisches Aliasing führt jedoch oft zu Situationen, indenen Filtering nicht weiter hilft.
-In solchen Situationen sind Warping Methoden, wie PSM oder LisPSM, zwar eine gute Option sind aber in der Praxis oft schwer zu implementieren.
-CSM stellt eine Diskretisierung von den Warping Methoden dar, die sehr viel leichter zu implementieren ist, da hier die Schattenberechnung in 
+Der Shadow Mapping Algorithmus ist eine gute Möglichkeit um Schatten in Echtzeit zu berechnen.
+Es ist jedoch wichtig, die zugrunde liegenden Diskretisierungsprobleme zu beachten.
+Selbstverschattung lässt sich in Szenen mit solider Geometrie am besten mit Second-Depth Shadow Mapping bekämpfen.
+In Szenen ohne solider Geometrie kann Selbstverschattung mit einer Kombination aus Biasing Methoden verhindert werden.
+Die leichteste Form Schatten Aliasing zu verhindern, ist das Anwenden von Antialiasing Filtering wie PCF.
+Perspektivisches Aliasing führt jedoch oft zu Situationen, in denen Filtering nicht weiter hilft.
+In solchen Fällen sind Warping Methoden wie PSM oder LisPSM zwar eine gute Option sind aber in der Praxis oft schwer zu implementieren.
+CSM stellt eine Diskretisierung der Warping Methoden dar und ist dabei sehr viel leichter zu implementieren da hier die Schattenberechnung in 
 World Space durchgeführt wird.
 \par
-CSM + PCF + Second Depth Shadow Mapping, stellt eine größtenteils Echtzeitfähige Implementierung, da
+CSM + PCF + Second Depth Shadow Mapping, ist eine größtenteils echtzeitfähige Implementierung.
 Second Depth Shadow Mapping hat keinen Einfluss auf die Performance und kann Selbstverschattung vollständig verhindern.
-CSM hat ein überdurschnittlich hohen Einfluss auf die Performance, dieses ist jedoch 
-in den meisten Fällen akzeptabel, da die Schattenqualität von CSM oft wichtiger ist.
+CSM hat einen negativen Einfluss auf die Performance.
+Dieses ist jedoch in den meisten Fällen akzeptabel, da die Schattenqualität von CSM oft besser ist.
 Im Bereich des Schattenkanten Antialiasing ist jedoch der Performance Unterschied zwischen PCF und alternativen 
-Antialiasing Methoden nicht akzeptabel, auch wenn diese Kombination auf heutiger Hardware Echtzeitfähig ist, 
-sollte erwähnt werden, dass PCF kein performanter Algorithmus ist.
+Antialiasing Methoden nicht akzeptabel.
+Auch wenn diese Kombination auf heutiger Hardware echtzeitfähig ist, 
+sollte erwähnt werden, dass PCF kein performanter Algorithmus ist. 
+Es gibt jedoch eine große Menge an Algorithmen wie Variance Shadow Mapping oder Exponential Shadow Mapping die 
+eine performante Alternative zu PCF darstellen.
 
 
 
